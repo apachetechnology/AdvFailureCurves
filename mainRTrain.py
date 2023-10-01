@@ -164,7 +164,6 @@ def Plot_RTrain_Results():
 ################################################################
 if __name__ == '__main__':
     print(os.getcwd())
-    #strRoot = '/home/sandeep.gupta/2023 Project/wsKyoto/kyoto2015-12'
 
     # Get the dataset (Digit, Kyoto, Beth)
     listDataset = ['Digit', 'Kyoto', 'Beth']
