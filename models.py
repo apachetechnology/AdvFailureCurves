@@ -20,7 +20,7 @@ from dataset import CDataset
 from plots import CPlots
 
 ######################################################################################
-#
+# Class CModels
 class CModels:
     def __init__(self, strDirPath, fTestSize, nclfA, nclfD, nclfR):
         print('CModels Object Created')
