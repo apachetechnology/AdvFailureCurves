@@ -1,4 +1,4 @@
-# keylearning
+# Adversarial Failure Curves
 
 The main program is in mainRTrain.py.
 
