@@ -5,6 +5,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+#############################################################
+# Class CAnalyzeResults
 class CAnalyzeResults:
     def __init__(self):
         print('CAnalyzeResults Object Created')
