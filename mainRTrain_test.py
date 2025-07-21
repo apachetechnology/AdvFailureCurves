@@ -185,6 +185,3 @@ if __name__ == '__main__':
     #                     nSteps, nRepeats)
 
     print('DONE')
-
-    strDirPath = r'./local-data/Kyoto_2023-08-16_12_22_06'
-    Plot_RTrain_Results()
