@@ -174,7 +174,7 @@ if __name__ == '__main__':
         objDS = CDataset()
 
         if cDATA == 'Digit':
-            listData, listLabel = objDS.PrepareDigitDS()
+            listData, listLabel = objDS.PrepareMNISTDS()
             print(listData.shape)
             print(len(listLabel))
             # print(listLabels)
@@ -187,7 +187,7 @@ if __name__ == '__main__':
             fTestSize = 0.9
             nRepeats = 10
         elif cDATA == 'Beth':
-            strFileName =  r'./local-data/BethDataset16Aug2023.csv'
+            strFileName =  r'../local-data/Beth_16Aug2023.csv'
             listData, listLabel = objDS.GetBethDataset(strFileName)
             fTestSize = 0.1656035
             nRepeats = 10

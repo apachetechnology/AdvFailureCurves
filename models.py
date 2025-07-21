@@ -451,7 +451,7 @@ class CModels:
         predR = predA*(1-self.rw100/100) + (rnums*self.rw100) / 100  # randomized predA
         return (predR, predA, y_test)
 
-    def computeAUCsRA(self, bBeth):
+    def computeAUCsRA(self, bBeth=False):
         predR, predA, y_test = self.predictRA(bBeth)
         testp = y_test.sum()
         testn = len(y_test) - testp  # number of pos & neg in test
