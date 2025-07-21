@@ -161,7 +161,7 @@ if __name__ == '__main__':
         #strPath = os.path.join(strRoot, strFileName)
         listData, listLabel = objDS.GetKyotoDataset(strFileName)
         fTestSize = 0.9
-        nRepeats = 2
+        nRepeats = 10
     elif cDATA == 'Beth':
         strFileName =  r'./local-data/BethDataset16Aug2023.csv'
         listData, listLabel = objDS.GetBethDataset(strFileName)
