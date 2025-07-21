@@ -5,9 +5,9 @@ import matplotlib.pyplot as plt
 
 from datetime import datetime
 
-from .models import CModels
-from .dataset import CDataset
-from .plots import CPlots
+from Core.models import CModels
+from Core.dataset import CDataset
+from Core.plots import CPlots
 
 def Run_RTrain(strDirPath, fTestSize, listSelectedClassifier,
                listData, listLabel, nRepeats, nSteps):
