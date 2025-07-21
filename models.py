@@ -827,7 +827,7 @@ if __name__ == '__main__':
         objDS = CDataset()
 
         if cDATA == 'Digit':
-            listData, listLabel = objDS.PrepareDigitDS()
+            listData, listLabel = objDS.PrepareMNISTDS()
             print(listData.shape)
             print(len(listLabel))
             # print(listLabels)

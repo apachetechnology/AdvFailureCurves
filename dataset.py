@@ -17,7 +17,7 @@ class CDataset:
         df.to_csv(strFileName, header=False, index=False)
 
     # Get Digits dataset & modification
-    def PrepareDigitDS(self, bVerbose = False):
+    def PrepareMNISTDS(self, bVerbose = False):
         np.random.seed(None)
 
         dsData = datasets.load_digits()
@@ -42,17 +42,10 @@ class CDataset:
         return listData, dsData.target
     
     # Beth Dataset
-    def PrepareBethDataset(self):
-        # prepare beth training and test set
-        dftrain1 = pd.read_csv(os.path.join(os.getcwd(), 'local-data', 'Beth', 'Beth_train4.csv'))
-        dfvalid1 = pd.read_csv(os.path.join(os.getcwd(), 'local-data', 'Beth', 'Beth_valid4.csv'))
-        dftest1 = pd.read_csv(os.path.join(os.getcwd(), 'local-data', 'Beth', 'Beth_test4.csv'))
-
-        print('Original: ', dftrain1.shape, dfvalid1.shape, dftest1.shape)
-
+    def BethDataReduction_Train(self):
         # reduce size to make it faster if needed
-        dftrain2 = dftrain1.sample(frac=0.9)
-        dfvalid2 = dfvalid1.sample(frac=0.9)
+        dftrain2 = self.dfBethTrain.sample(frac=0.9)
+        dfvalid2 = self.dfBethValid.sample(frac=0.9)
 
         # Combine train and validatie files
         frames = [dftrain2, dfvalid2]
@@ -62,14 +55,14 @@ class CDataset:
         dfYTrain = np.ravel(df_train['sus']) # 
         print('Train label: ', dfYTrain.shape)
 
-        dfXTrain = df_train.drop("evil", axis=1)
-        #dfXTrain = dfXTrain.drop("sus", axis=1)
-        dfXTrain.drop_duplicates()
-        print('Training dataset: ', dfXTrain.shape)
+        self.dfXTrain = df_train.drop("evil", axis=1)
+        #self.dfXTrain = self.dfXTrain.drop("sus", axis=1)
+        self.dfXTrain.drop_duplicates()
+        print('Training dataset: ', self.dfXTrain.shape)
         #dfXTrain.to_csv('Beth_train.csv', index=False)
 
-
-        dfTest_Sampled = dftest1.sample(frac=0.9)
+    def BethDataReduction_Test(self):
+        dfTest_Sampled = self.dfBethTest.sample(frac=0.9)
         print(dfTest_Sampled.groupby('sus').size())
         
         # other relevant parameteres
@@ -79,15 +72,29 @@ class CDataset:
         print('Test Label', dfYTest.shape)
         
         # drop both targets (sus) and (evil, not used here) from test
-        dfXTest = dfTest_Sampled.drop("evil", axis=1)
-        #dfXTest = dfXTest.drop("sus", axis=1)
-        dfXTest.drop_duplicates()
-        print('Test Data', dfXTest.shape)
-        #dfXTest.to_csv('Beth_test.csv', index=False)
+        self.dfXTest = dfTest_Sampled.drop("evil", axis=1)
+        #self.dfXTest = self.dfXTest.drop("sus", axis=1)
+        self.dfXTest.drop_duplicates()
+        print('Test Data', self.dfXTest.shape)
+        #self.dfXTest.to_csv('Beth_test.csv', index=False)
 
-        frames1 = [dfXTrain, dfXTest]
+    def BethSubSetWrite2File(self, strFileName):
+        frames1 = [self.dfXTrain, self.dfXTest]
         dfCombined = pd.concat(frames1, ignore_index=True)
-        dfCombined.to_csv('BethDataset16Aug2023.csv', index=False)
+        dfCombined.to_csv(strFileName, index=False)
+
+    def PrepareBethDataset(self, strDSPath, strOutFilename):
+        # prepare beth training and test set
+        self.dfBethTrain = pd.read_csv(os.path.join(strDSPath, 'Beth_train4.csv'))
+        self.dfBethValid = pd.read_csv(os.path.join(strDSPath, 'Beth_valid4.csv'))
+        self.dfBethTest = pd.read_csv(os.path.join(strDSPath, 'Beth_test4.csv'))
+
+        print('Original: ', self.dfBethTrain.shape, 
+              self.dfBethValid.shape, self.dfBethTest.shape)
+        
+        self.BethDataReduction_Train()
+        self.BethDataReduction_Test()
+        self.BethSubSetWrite2File(strOutFilename)
 
     def GetBethDataset(self, strFileName):
         df = pd.read_csv(strFileName, delimiter=',')
