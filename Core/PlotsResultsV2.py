@@ -240,8 +240,8 @@ class CAnalyzeResults:
         plt.setp(ax12.get_xticklabels(), rotation=90, ha='center')
         ax12.set_xlabel('Training data size')
         plt.figlegend([l11, l12, l13], [strL11, strL12, strL13], 
-                      #loc=(.2, .1), fontsize=9)
-                      loc=(.2, .25), fontsize=9) # BETH_OOS
+                      loc=(.2, .1), fontsize=9)
+                      #loc=(.2, .25), fontsize=9) # BETH_OOS
         
         #plt.figlegend(loc = 'lower center', ncol=2, labelspacing=0.)
 
