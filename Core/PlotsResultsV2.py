@@ -9,7 +9,8 @@ class CAnalyzeResults:
     def __init__(self):
         print('CAnalyzeResults Object Created')
 
-    def AnalyzeRTrain(self):
+    def AnalyzeRTrain(self, strDirPath, listSelectedClassifier, 
+                      nSteps, nRepeats):
         dictDF = {}
         for nclfD in listSelectedClassifier:
             for nclfA in listSelectedClassifier:
@@ -57,7 +58,8 @@ class CAnalyzeResults:
         self.mean_tpr_aucDs3 = np.mean(mean_tpr_aucDs_all[:,6:9], axis=1)
 
 
-    def GetMeanAFR_aucRs(self):
+    def GetMeanAFR_aucRs(self, strDirPath, listSelectedClassifier, 
+                         nSteps, nRepeats):
         # mean_afr_aucRs is mean of mean_afr_aucDs for each classifier
         # obtained using post-learning randomization data from RV.py
         dictDF_RV = {}
@@ -84,7 +86,8 @@ class CAnalyzeResults:
         self.mean_tpr_aucRs = np.mean(mean_tpr_aucRs_all, axis=1)
 
 
-    def PrintResults(self):
+    def PrintResults(self, listSelectedClassifier, nSteps, nRepeats,
+                     strOutDir, strToken):
         #print results of 4 different anti-evasion algorithms
         # Combined
         maxAFRrowByRow = (max(self.mean_afr_aucDs1) + max(self.mean_afr_aucDs2) + 
@@ -174,7 +177,7 @@ class CAnalyzeResults:
                           )
 
     # This function is in use
-    def PlotResults_Combined(self, strTitle):
+    def PlotResults_Combined(self, strTitle, strOutDir, strToken):
         fig, axs = plt.subplots(2, figsize=(6, 7)) # figsize=(6, 3), dpi=300
         #fig.suptitle(strTitle)
         plt.subplots_adjust(hspace=.55)
@@ -249,7 +252,7 @@ class CAnalyzeResults:
         #plt.show()
         plt.clf()
 
-    def PlotResults_Two(self, strTitle):
+    def PlotResults_Two(self, strTitle, strOutDir):
         fig, axs = plt.subplots(2)
         fig.suptitle(strTitle)
         plt.subplots_adjust(hspace=0.4)
@@ -284,7 +287,7 @@ class CAnalyzeResults:
         plt.clf()
 
     # 14th May 2024
-    def PlotResults_RF_MM(self):
+    def PlotResults_RF_MM(self, strOutDir, strToken):
         fig, axs = plt.subplots(2, figsize=(6, 7)) # figsize=(6, 3), dpi=300
         #fig.suptitle(strTitle)
         plt.subplots_adjust(hspace=.55)
@@ -328,7 +331,7 @@ class CAnalyzeResults:
         plt.show()
         plt.clf()
 
-    def PlotResults_PostLearn(self):
+    def PlotResults_PostLearn(self, strOutDir, strToken):
         fig, axs = plt.subplots(2, figsize=(6, 7)) # figsize=(6, 3), dpi=300
         #fig.suptitle(strTitle)
         plt.subplots_adjust(hspace=.55)
@@ -363,18 +366,20 @@ class CAnalyzeResults:
         plt.show()
         plt.clf()
 
-    def Plot_RTrain_Results(self, strTitle):
+    def Plot_RTrain_Results(self, strTitle, strDirPath, strOutDir, strToken,
+                            listSelectedClassifier, nSteps, nRepeats):
         if len(listSelectedClassifier) < 3:
             print('Please select 3 classifiers.')
             return
 
-        self.GetMeanAFR_aucRs()
-        self.AnalyzeRTrain()
+        self.GetMeanAFR_aucRs(strDirPath, listSelectedClassifier, nSteps, nRepeats)
+        self.AnalyzeRTrain(strDirPath, listSelectedClassifier, nSteps, nRepeats)
 
-        self.PrintResults()
+        self.PrintResults(listSelectedClassifier, nSteps, nRepeats,
+                          strOutDir, strToken)
         # 14th May 2024
-        self.PlotResults_RF_MM()
-        self.PlotResults_PostLearn()
+        self.PlotResults_RF_MM(strOutDir, strToken)
+        self.PlotResults_PostLearn(strOutDir, strToken)
         
 ################################################################
 # 14th May 2024
@@ -398,16 +403,24 @@ if __name__ == '__main__':
         if strToken == '_Digit':
             nRepeats = 100
             strDirPath = '../Results25Aug/Digit_2023-08-21_12_32_49'
-            obj.Plot_RTrain_Results('Digit, Total: (1797, 64) Training: (539, 64)')
+            obj.Plot_RTrain_Results('Digit, Total: (1797, 64) Training: (539, 64)',
+                                    strDirPath, strOutDir, strToken,
+                                    listSelectedClassifier, nSteps, nRepeats)
         elif strToken == '_Kyoto':
             nRepeats = 10
             strDirPath = '../Results25Aug/Kyoto_2023-08-21_14_36_44'
-            obj.Plot_RTrain_Results('Kyoto, Total: (60000, 13) Training: (6000, 13)')
+            obj.Plot_RTrain_Results('Kyoto, Total: (60000, 13) Training: (6000, 13)',
+                                    strDirPath, strOutDir, strToken,
+                                    listSelectedClassifier, nSteps, nRepeats)
         elif strToken == '_Beth_OoS':
             nRepeats = 10
             strDirPath = '../Results25Aug/Beth_2023-08-23_11_37_54_OoS'
-            obj.Plot_RTrain_Results('Beth Total: (1026970, 6) Training: (856900, 6)')
+            obj.Plot_RTrain_Results('Beth Total: (1026970, 6) Training: (856900, 6)',
+                                    strDirPath, strOutDir, strToken,
+                                    listSelectedClassifier, nSteps, nRepeats)
         elif strToken == '_Beth_IS':
             nRepeats = 10
             strDirPath = '../Results25Aug/Beth_2023-08-22_14_50_55_IS'
-            obj.Plot_RTrain_Results('Beth Total: (1026970, 6) Training: (102697, 6)')
+            obj.Plot_RTrain_Results('Beth Total: (1026970, 6) Training: (102697, 6)',
+                                    strDirPath, strOutDir, strToken,
+                                    listSelectedClassifier, nSteps, nRepeats)
