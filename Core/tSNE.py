@@ -142,16 +142,16 @@ if __name__ == '__main__':
 
     if cDATA == 'Kyoto':
         strFileName = r'./DATA/Kyoto2015DS.csv'
-        strOutputFile = './Results25Aug/tsneKyoto_train.pdf'
+        strOutputFile = './Results25Aug23/tsneKyoto_train.pdf'
         df = Kyoto(strFileName, True)
     elif cDATA == 'Beth':
         strFileName = r'./DATA/Beth_16Aug2023.csv'
-        strOutputFile = './Results25Aug/tsneBeth_train.pdf'
+        strOutputFile = './Results25Aug23/tsneBeth_train.pdf'
         df = Beth(strFileName, nExp=1)
         df = df.sample(frac=0.1)
         print('Sampled: ', df['Labels'].value_counts())
     else:
-        strOutputFile = './Results25Aug/tsneDigit_train.pdf'
+        strOutputFile = './Results25Aug23/tsneDigit_train.pdf'
         df = Digit(bVerbose=True)
 
     tSNEPlots(strOutputFile, df, listLabels=['Positive', 'Negative'])

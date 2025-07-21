@@ -402,25 +402,25 @@ if __name__ == '__main__':
     for strToken in listDS:
         if strToken == '_Digit':
             nRepeats = 100
-            strDirPath = '../Results25Aug/Digit_2023-08-21_12_32_49'
+            strDirPath = '../Results25Aug23/Digit_2023-08-21_12_32_49'
             obj.Plot_RTrain_Results('Digit, Total: (1797, 64) Training: (539, 64)',
                                     strDirPath, strOutDir, strToken,
                                     listSelectedClassifier, nSteps, nRepeats)
         elif strToken == '_Kyoto':
             nRepeats = 10
-            strDirPath = '../Results25Aug/Kyoto_2023-08-21_14_36_44'
+            strDirPath = '../Results25Aug23/Kyoto_2023-08-21_14_36_44'
             obj.Plot_RTrain_Results('Kyoto, Total: (60000, 13) Training: (6000, 13)',
                                     strDirPath, strOutDir, strToken,
                                     listSelectedClassifier, nSteps, nRepeats)
         elif strToken == '_Beth_OoS':
             nRepeats = 10
-            strDirPath = '../Results25Aug/Beth_2023-08-23_11_37_54_OoS'
+            strDirPath = '../Results25Aug23/Beth_2023-08-23_11_37_54_OoS'
             obj.Plot_RTrain_Results('Beth Total: (1026970, 6) Training: (856900, 6)',
                                     strDirPath, strOutDir, strToken,
                                     listSelectedClassifier, nSteps, nRepeats)
         elif strToken == '_Beth_IS':
             nRepeats = 10
-            strDirPath = '../Results25Aug/Beth_2023-08-22_14_50_55_IS'
+            strDirPath = '../Results25Aug23/Beth_2023-08-22_14_50_55_IS'
             obj.Plot_RTrain_Results('Beth Total: (1026970, 6) Training: (102697, 6)',
                                     strDirPath, strOutDir, strToken,
                                     listSelectedClassifier, nSteps, nRepeats)
