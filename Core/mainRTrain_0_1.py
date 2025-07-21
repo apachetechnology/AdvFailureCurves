@@ -5,12 +5,30 @@ import matplotlib.pyplot as plt
 
 from datetime import datetime
 
-from models import CModels
-from dataset import CDataset
-from plots import CPlots
+from .models import CModels
+from .dataset import CDataset
+from .plots import CPlots
 
-def Run_RTrain(strDirPath, fTestSize, listSelectedClassifier,
-               listData, listLabel, nRepeats, nSteps):
+from numba import jit, cuda
+
+import warnings
+warnings.filterwarnings('ignore')
+
+#############################################################
+##
+def ROC_example(listData, listLabel):
+    nclfA = 5  # AdaBoostClassifier
+    nclfD = 2  # RandomForestClassifier
+    nclfR = 4  # MLPClassifier
+
+    objM = CModels(strDirPath, 0.7, nclfA, nclfD, nclfR)
+    objM.RunROC(listData, listLabel)
+
+    strFileName = os.path.join(os.getcwd(), 'local-data\kyoto_roc.pdf')
+    objM.PlotROC(strFileName)
+
+@jit(target_backend='cuda')
+def Run_RTrain():
     # Run Rtrain using below classifier combination
     # Beth RandomForestClassifier(max_depth=5, n_estimators=10, max_features=5) #3
     # MLPClassifier(alpha=1, max_iter=100),  # 4
@@ -29,16 +47,15 @@ def Run_RTrain(strDirPath, fTestSize, listSelectedClassifier,
             #break
         #break
 
-def Run_RV(strDirPath, fTestSize, listSelectedClassifier,
-           listData, listLabel, nRepeats, nSteps):
+@jit(target_backend='cuda')
+def Run_RV():
     for nclfA in listSelectedClassifier:
         objM = CModels(strDirPath, fTestSize, nclfA, -1, -1)
         objM.Run_RV(listData, listLabel, nRepeats, nSteps)
         #break
 
 
-def Plot_RTrain_Results(strDirPath, listSelectedClassifier,
-                        nSteps, nRepeats):
+def Plot_RTrain_Results():
     # This is for testing purpose
     # strOutDir = '2023-08-15_10_52_13'
     # strDirPath = os.path.join(os.getcwd(), 'local-data', strOutDir)
@@ -109,10 +126,18 @@ def Plot_RTrain_Results(strDirPath, listSelectedClassifier,
     ax.plot(arrTrainPercent, mean_afr_aucDs3, label='afr_AUC row3')
     ax.plot(arrTrainPercent, mean_afr_aucDs11, label='afr_AUC RF')
     plt.plot(arrTrainPercent, mean_afr_aucRs, label='afr_AUC for post-learn randomization')
-    ax.set_xticks(arrTrainPercent) 
-    ax.legend(loc='best')
+    ax.set_xticks(arrTrainPercent.ravel()) 
+    pos = ax.get_position()
+    ax.set_position([pos.x0, pos.y0, pos.width, pos.height * 0.85])
+    ax.legend(
+        loc='upper center', 
+        bbox_to_anchor=(0.5, 1.15),
+        ncol=3, 
+    )
 
     plt.xticks(rotation ='vertical')
+    plt.xlabel('Training percentage')
+    plt.ylim([0, 1])
     plt.grid(True)
     plt.savefig(strDirPath + '/Result.pdf', dpi=300, bbox_inches='tight')
     #plt.show()
@@ -141,47 +166,44 @@ def Plot_RTrain_Results(strDirPath, listSelectedClassifier,
 ################################################################
 if __name__ == '__main__':
     print(os.getcwd())
-    #strRoot = '/home/sandeep.gupta/2023 Project/wsKyoto/kyoto2015-12'
 
     # Get the dataset (Digit, Kyoto, Beth)
     listDataset = ['Digit', 'Kyoto', 'Beth']
 
-    cDATA = 'Digit'
-    objDS = CDataset()
+    for cDATA in listDataset:
+        objDS = CDataset()
 
-    if cDATA == 'Digit':
-        listData, listLabel = objDS.PrepareMNISTDS()
-        print(listData.shape)
-        print(len(listLabel))
-        # print(listLabels)
-        fTestSize = 0.7
-        nRepeats = 1
-    elif cDATA == 'Kyoto':
-        strFileName =  r'./local-data/Kyoto2015DS.csv'
-        #strPath = os.path.join(strRoot, strFileName)
-        listData, listLabel = objDS.GetKyotoDataset(strFileName)
-        fTestSize = 0.9
-        nRepeats = 10
-    elif cDATA == 'Beth':
-        strFileName =  r'./local-data/BethDataset16Aug2023.csv'
-        listData, listLabel = objDS.GetBethDataset(strFileName)
-        fTestSize = 0.1656035
-        nRepeats = 10
+        if cDATA == 'Digit':
+            listData, listLabel = objDS.PrepareMNISTDS()
+            print(listData.shape)
+            print(len(listLabel))
+            # print(listLabels)
+            fTestSize = 0.7
+            nRepeats = 100
+        elif cDATA == 'Kyoto':
+            strFileName =  r'./local-data/Kyoto2015DS.csv'
+            #strPath = os.path.join(strRoot, strFileName)
+            listData, listLabel = objDS.GetKyotoDataset(strFileName)
+            fTestSize = 0.9
+            nRepeats = 10
+        elif cDATA == 'Beth':
+            strFileName =  r'../local-data/Beth_16Aug2023.csv'
+            listData, listLabel = objDS.GetBethDataset(strFileName)
+            fTestSize = 0.1656035
+            nRepeats = 10
 
-    nSteps = 5
+        nSteps = 5
 
-    # Generate output directory
-    strOutDir = datetime.now().strftime('%Y-%m-%d_%H_%M_%S')
-    print(strOutDir)
-    strDirPath = os.path.join(os.getcwd(), 'local-data', cDATA + '_' + strOutDir)
-    #os.makedirs(strDirPath)
+        # Generate output directory
+        strOutDir = datetime.now().strftime('%Y-%m-%d_%H_%M_%S')
+        print(strOutDir)
+        strDirPath = os.path.join(os.getcwd(), 'local-data', cDATA + '_' + strOutDir)
+        os.makedirs(strDirPath)
 
-    listSelectedClassifier = [3, 4, 5]
-    # Run_RTrain(strDirPath, fTestSize, listSelectedClassifier,
-    #            listData, listLabel, nRepeats, nSteps)
-    # Run_RV(strDirPath, fTestSize, listSelectedClassifier,
-    #        listData, listLabel, nRepeats, nSteps)
-    # Plot_RTrain_Results(strDirPath, listSelectedClassifier, 
-    #                     nSteps, nRepeats)
+        listSelectedClassifier = [3, 4, 5]
+
+        Run_RTrain()
+        Run_RV()
+        Plot_RTrain_Results()
 
     print('DONE')
