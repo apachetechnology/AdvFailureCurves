@@ -664,7 +664,8 @@ class CModels:
             print("std_afr_aucDs = ", std_afr_aucDs)
         sys.stdout = original_stdout
 
-    def Run_RTrainSize(self, listData, listLabel, nRepeats = 2, nSteps = 5, bBeth = False):
+    def Run_RTrainSize(self, listData, listLabel, 
+                       nRepeats = 2, nSteps = 5, bBeth = False):
         self.mlistData = listData
         self.mlistLabel = listLabel
     

@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 from .dataset import CDataset
 
 #=====================================================================
-def tSNEPlots(df, listLabels, strOutputFile):
+def tSNEPlots(df, listLabels, strOutputFile, strLoc = 'upper right'):
     tsne = TSNE(n_components=2, verbose=1, perplexity=40, n_iter=300)
     dfLocal = df.drop('Labels', axis='columns').copy()
     print('Data for tSNE', dfLocal.shape)
@@ -33,7 +33,7 @@ def tSNEPlots(df, listLabels, strOutputFile):
         legend="full",
         #alpha=0.3
     )
-    plt.legend(loc='upper right')
+    plt.legend(loc=strLoc)
     plt.grid(linestyle='dotted')
     if strOutputFile != None:
         plt.savefig(strOutputFile, dpi=300, bbox_inches='tight')
