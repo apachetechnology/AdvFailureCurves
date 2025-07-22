@@ -14,8 +14,8 @@ from .dataset import CDataset
 def tSNEPlots(df, listLabels, strOutputFile):
     tsne = TSNE(n_components=2, verbose=1, perplexity=40, n_iter=300)
     dfLocal = df.drop('Labels', axis='columns').copy()
-    print(dfLocal.shape)
-    tsne_results = tsne.fit_transform(df)
+    print('Data for tSNE', dfLocal.shape)
+    tsne_results = tsne.fit_transform(dfLocal)
 
     df['Feature-one'] = tsne_results[:,0]
     df['Feature-two'] = tsne_results[:,1]
@@ -71,7 +71,7 @@ def Digit(bVerbose = False):
     return df
 
 # KYOTO
-def Kyoto(strFileName, bVerbose = False):
+def Kyoto(objDS, strFileName, bVerbose = False):
     #objDS.CreateBalanceDS(strFileName)
 
     listData, listLabel = objDS.GetKyotoDataset(strFileName)
@@ -104,7 +104,7 @@ def Kyoto(strFileName, bVerbose = False):
     return df
 
 # BETH
-def Beth(strFileName, nExp=1):
+def Beth(objDS, strFileName, nExp=1):
     listData, listLabel = objDS.GetBethDataset(strFileName)
     print(listData.shape, listLabel.shape)
 
@@ -142,17 +142,17 @@ if __name__ == '__main__':
     cDATA = '' #'Kyoto'
 
     if cDATA == 'Kyoto':
-        strFileName = r'./DATA/Kyoto2015DS.csv'
-        strOutputFile = './Results25Aug23/tsneKyoto_train.pdf'
-        df = Kyoto(strFileName, True)
+        strFileName = r'../DATA/Kyoto2015DS.csv'
+        strOutputFile = './local-data/tsneKyoto_train.pdf'
+        df = Kyoto(objDS, strFileName, True)
     elif cDATA == 'Beth':
-        strFileName = r'./DATA/Beth_16Aug2023.csv'
-        strOutputFile = './Results25Aug23/tsneBeth_train.pdf'
-        df = Beth(strFileName, nExp=1)
+        strFileName = r'../DATA/Beth_16Aug2023.csv'
+        strOutputFile = './local-data/tsneBeth_train.pdf'
+        df = Beth(objDS, strFileName, nExp=1)
         df = df.sample(frac=0.1)
         print('Sampled: ', df['Labels'].value_counts())
     else:
-        strOutputFile = './Results25Aug23/tsneDigit_train.pdf'
+        strOutputFile = './local-data/tsneDigit_train.pdf'
         df = Digit(bVerbose=True)
 
     tSNEPlots(df, listLabels=['Positive', 'Negative'], 
