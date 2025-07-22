@@ -8,10 +8,10 @@ from sklearn.manifold import TSNE
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-from dataset import CDataset
+from .dataset import CDataset
 
 #=====================================================================
-def tSNEPlots(strOutputFile, df, listLabels):
+def tSNEPlots(df, listLabels, strOutputFile):
     tsne = TSNE(n_components=2, verbose=1, perplexity=40, n_iter=300)
     dfLocal = df.drop('Labels', axis='columns').copy()
     print(dfLocal.shape)
@@ -35,7 +35,8 @@ def tSNEPlots(strOutputFile, df, listLabels):
     )
     plt.legend(loc='upper right')
     plt.grid(linestyle='dotted')
-    plt.savefig(strOutputFile, dpi=300, bbox_inches='tight')
+    if strOutputFile != None:
+        plt.savefig(strOutputFile, dpi=300, bbox_inches='tight')
     plt.show()
 
 # DIGIT
@@ -154,4 +155,5 @@ if __name__ == '__main__':
         strOutputFile = './Results25Aug23/tsneDigit_train.pdf'
         df = Digit(bVerbose=True)
 
-    tSNEPlots(strOutputFile, df, listLabels=['Positive', 'Negative'])
+    tSNEPlots(df, listLabels=['Positive', 'Negative'], 
+              strOutputFile=strOutputFile)
