@@ -41,6 +41,11 @@ class CClassification:
     def combineFiles(self, listA, listB, listC):
         return np.hstack((listA, listB, listC))
     
+    def SetDataset(self, listData, listLabel):
+        self.mArrDataSet = listData
+        self.mArrLabels = listLabel
+        return self.mArrDataSet, self.mArrLabels
+    
     def CreateDataSet(self, arrDataBenign, arrDataMalacious, nObsPerClass = -1):
         nBenignSamples = len(arrDataBenign)
         nMaliciousSamples = len(arrDataMalacious)
@@ -208,55 +213,7 @@ class CClassification:
         )
         plt.show()
 
-#########################################################
-def KBC_Model(nIter, fTrainSz, bPlot):
-    objCL = CClassification()
-    
-    strOrigLH = strRoot + 'LBP_KBC_Orig_LH.csv'
-    listOrigLH = objCL.ReadFile(strOrigLH)
-    strOrigHL = strRoot + 'LBP_KBC_Orig_HL.csv'
-    listOrigHL = objCL.ReadFile(strOrigHL)
-    strOrigHH = strRoot + 'LBP_KBC_Orig_HH.csv'
-    listOrigHH = objCL.ReadFile(strOrigHH)
-    listOrig = objCL.combineFiles(listOrigLH, listOrigHL, listOrigHH)
-
-    strSynLH = strRoot + 'LBP_KBC_WL_' + str(nIter) + '_LH.csv'
-    listSynLH = objCL.ReadFile(strSynLH)
-    strSynHL = strRoot + 'LBP_KBC_WL_' + str(nIter) + '_LH.csv'
-    listSynHL = objCL.ReadFile(strSynHL)
-    strSynHH = strRoot + 'LBP_KBC_WL_' + str(nIter) + '_LH.csv'
-    listSynHH = objCL.ReadFile(strSynHH)
-    listSyn = objCL.combineFiles(listSynLH, listSynHL, listSynHH)
-
-    objCL.CreateDataSet(listOrig, listSyn)
-
-    objCL.SelectClassifier('SVC2')
-    strModelName = './working-data/SVM_1500_' + str(fTrainSz) + '.pickle'
-    objCL.Execute(fTrainSz, strModelName, str(nIter), bPlot)
-    
-    #objC.PlotHyperplane(0.3)
-
-# Added on 31st Jan 2024
-def TruFace_Model(strIn):
-    objCL = CClassification()
-
-    listRealLH = objCL.ReadFile(os.path.join(strIn, 'Real_LH.csv'))
-    listRealHL = objCL.ReadFile(os.path.join(strIn, 'Real_HL.csv'))
-    listRealHH = objCL.ReadFile(os.path.join(strIn, 'Real_HH.csv'))
-    listReal = objCL.combineFiles(listRealLH, listRealHL, listRealHH)
-
-    listFakeLH = objCL.ReadFile(os.path.join(strIn, 'Fake05_LH.csv'))
-    listFakeHL = objCL.ReadFile(os.path.join(strIn, 'Fake05_HL.csv'))
-    listFakeHH = objCL.ReadFile(os.path.join(strIn, 'Fake05_HH.csv'))
-    listFake = objCL.combineFiles(listFakeLH, listFakeHL, listFakeHH)
-
-    objCL.CreateDataSet(listReal, listFake)
-
-    objCL.SelectClassifier('SVC2')
-    strModelName = './working-data/TruFace.pickle'
-    fTrainSz = 0.5
-    objCL.Execute(fTrainSz, strModelName, str(0), False)
-    
+#########################################################    
 def Example():
     # we create two clusters of random points
     n_samples_1 = 1000
@@ -274,73 +231,5 @@ def Example():
     print(X.shape, y.shape)
 
 #========================================================
-# These functions produce Figure 10 and the results
-def DNNPaperResults():
-    fTrainSz = 0.1
-
-    listIter = ['300', '500', '1000', '1500']
-
-    #plt.figure(figsize=(4, 3))
-    #fig, ax = plt.subplots()
-
-    for nIter in listIter:    
-        KBC_Model(nIter, fTrainSz, True)
-
-    plt.legend(ncol=1, loc='best', prop={'size': 10})  # Arrange legend into two columns
-    plt.grid(True)
-    plt.grid(which='minor', alpha=0.2)
-    plt.minorticks_on()
-    plt.savefig('../Images/PRModels.pdf', dpi=300)
-    plt.show()
-
-def PRModel_1500():
-    KBC_Model(1500, 0.1, True)
-    plt.legend(ncol=1, loc='best', prop={'size': 10})  # Arrange legend into two columns
-    plt.grid(True)
-    plt.grid(which='minor', alpha=0.2)
-    plt.minorticks_on()
-    plt.savefig('../Images/PRModel_1500.pdf', dpi=300)
-    plt.show()
-
-def PRModel_1500_Save():
-    KBC_Model(1500, 0.1, False)
-
-def TestMOBIOData():
-    strRoot = '../Data_KBC/'
-
-    objCL = CClassification()
-
-    strOrigLH = strRoot + 'Original_WL_LH.csv'
-    listOrigLH = objCL.ReadFile(strOrigLH)
-    strOrigHL = strRoot + 'Original_WL_HL.csv'
-    listOrigHL = objCL.ReadFile(strOrigHL)
-    strOrigHH = strRoot + 'Original_WL_HH.csv'
-    listOrigHH = objCL.ReadFile(strOrigHH)
-
-    Y = objCL.combineFiles(listOrigLH, listOrigHL, listOrigHH)
-    print(Y.shape)
-    y_true = np.ones(Y.shape[0], dtype=int) * 0
-    y_true = y_true.reshape(Y.shape[0], 1)
-
-    strModelName = './working-data/SVM_1500.pickle'
-    Loaded_model = pickle.load(open(strModelName, 'rb'))
-    result = Loaded_model.score(Y, y_true)
-    print('Result=', result)
-
-#========================================================
 if __name__ == '__main__':
     print('Root Path:', os.getcwd())
-    strRoot = '../Data_KBC/KBC_WL/'
-    
-    fig, ax = plt.subplots()
-
-    # DNNPaperResults()
-    #PRModel_1500_Save()
-    # PRModel_1500()
-    #TruFace_Model('../Data_KBC/TrueFace/LBP_combined_512', 0.7)
-    # Tested on 31st Jan 2024
-    TruFace_Model('../Data_KBC/TrueFace_Ext')
-
-    # obj = CTSNEPlots()
-    # strOut = './working-data/tsneLPB.pdf'
-    # obj.tSNEPlots(strOut)
