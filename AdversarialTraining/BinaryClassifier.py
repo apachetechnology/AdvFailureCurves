@@ -80,13 +80,14 @@ class CClassification:
     def SelectClassifier(self, strToken = 'RF'):
         self.mStrModel = strToken
 
-        if self.mStrModel == 'SVC':
+        if self.mStrModel == 'RF':
+            self.mModel = RandomForestClassifier() 
+            # n_estimators=100, max_depth=10, random_state=42
+        elif self.mStrModel == 'SVC':
             self.mModel = SVC(probability=True)
         elif self.mStrModel == 'SVC2':
             self.mModel = SVC(kernel='rbf', C=1e9, 
                               gamma=1e-07, probability=True) # kernel='linear', C=1 #C=1000,gamma = 1, kernel='linear'
-        elif self.mStrModel == 'RF':
-            self.mModel = RandomForestClassifier() # n_estimators=100, max_depth=10, random_state=42
         elif self.mStrModel == 'DT':
             self.mModel = DecisionTreeClassifier(probability=True) # max_depth=2
         elif self.mStrModel == 'MLP':
@@ -95,6 +96,9 @@ class CClassification:
             self.mModel = GaussianNB(probability=True)
         elif self.mStrModel == 'KNN':
             self.mModel = KNeighborsClassifier(probability=True) #n_neighbors=3
+        elif self.mStrModel == 'RF_Met':
+            self.mModel = RandomForestClassifier(
+                max_depth=5, n_estimators=10, max_features=5)
 
     def ShowResult(self, Y, y_true, y_pred):
         print('Accuracy=', self.mModel.score(Y, y_true))

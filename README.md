@@ -1,4 +1,5 @@
 # Adversarial Failure Curves
+https://anonymous.4open.science/r/AdvFailureCurves-EAF8
 
 ## Main Experiments
     Run nbMainExperiments.ipynb
@@ -9,6 +10,10 @@
 ## Generate Synthethic Data
     Run nbGenSynData.ipynb 
 
+# Requirements
+pip install scikit-learn adversarial-robustness-toolbox
 
-https://anonymous.4open.science/r/AdvFailureCurves-EAF8
+py -3.9 -m pip show scikit-learn
+py -3.9 -m pip install --upgrade adversarial-robustness-toolbox
+
 
