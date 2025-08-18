@@ -13,7 +13,7 @@ from sklearn.metrics import PrecisionRecallDisplay
 from sklearn.metrics import classification_report
 
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
 from sklearn.svm import SVC
 from sklearn.naive_bayes import GaussianNB
 from sklearn.neural_network import MLPClassifier
@@ -99,6 +99,10 @@ class CClassification:
         elif self.mStrModel == 'RF_Met':
             self.mModel = RandomForestClassifier(
                 max_depth=5, n_estimators=10, max_features=5)
+        elif self.mStrModel == 'MLP_Met':
+            self.mModel = MLPClassifier(alpha=1, max_iter=100)
+        elif self.mStrModel == 'AB_Met':
+            self.mModel = AdaBoostClassifier()
 
     def ShowResult(self, Y, y_true, y_pred):
         print('Accuracy=', self.mModel.score(Y, y_true))
@@ -119,6 +123,12 @@ class CClassification:
         print('Model:', self.mStrModel, 'A:', str(fAccuracy), 
             ' P:', str(fPrecision), ' R:' + str(fRecall), ' F1:', F1_score)
 
+    def TestModel(self, strModelName, Y, y_true):
+        # load the model from disk
+        Loaded_model = pickle.load(open(strModelName, 'rb'))
+        result = Loaded_model.score(Y, y_true)
+        print('Loaded model accuracy: ', result*100)
+
     def Execute(self, fTrainSz, strModelName, strIter,
                 bPlot=False, bPredict=False):
         X, Y, x_true, y_true = train_test_split(self.mArrDataSet, 
@@ -135,10 +145,7 @@ class CClassification:
         y_pred = self.mModel.predict(Y)
         self.ShowResult(Y, y_true, y_pred)
 
-        # load the model from disk
-        Loaded_model = pickle.load(open(strModelName, 'rb'))
-        result = Loaded_model.score(Y, y_true)
-        print('Loaded model accuracy: ', result*100)
+        self.TestModel(strModelName, Y, y_true)
 
         if bPredict:
             target_names = ['Original', 'Synthetic']
