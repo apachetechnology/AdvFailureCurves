@@ -10,7 +10,8 @@ from Core.dataset import CDataset
 from Core.plots import CPlots
 
 def Run_RTrain(strDirPath, fTestSize, listSelectedClassifier,
-               listData, listLabel, nRepeats, nSteps):
+               listData, listLabel, nRepeats, nSteps,
+               bShuffle, aStratify, aRS):
     # Run Rtrain using below classifier combination
     # Beth RandomForestClassifier(max_depth=5, n_estimators=10, max_features=5) #3
     # MLPClassifier(alpha=1, max_iter=100),  # 4
@@ -24,15 +25,20 @@ def Run_RTrain(strDirPath, fTestSize, listSelectedClassifier,
     for nclfD in listSelectedClassifier:
         for nclfA in listSelectedClassifier:
             print('Combination - D: ', nclfD, 'A: ', nclfA)
-            objM = CModels(strDirPath, fTestSize, nclfA, nclfD, -1)
+            objM = CModels(strDirPath, fTestSize, 
+                           nclfA, nclfD, -1,
+                           bShuffle, aStratify, aRS)
             objM.Run_RTrainSize(listData, listLabel, nRepeats, nSteps)
             #break
         #break
 
 def Run_RV(strDirPath, fTestSize, listSelectedClassifier,
-           listData, listLabel, nRepeats, nSteps):
+           listData, listLabel, nRepeats, nSteps,
+           bShuffle, aStratify, aRS):
     for nclfA in listSelectedClassifier:
-        objM = CModels(strDirPath, fTestSize, nclfA, -1, -1)
+        objM = CModels(strDirPath, fTestSize, 
+                       nclfA, -1, -1,
+                       bShuffle, aStratify, aRS)
         objM.Run_RV(listData, listLabel, nRepeats, nSteps)
         #break
 

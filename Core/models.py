@@ -24,13 +24,19 @@ from .plots import CPlots
 ######################################################################################
 # Class CModels
 class CModels:
-    def __init__(self, strDirPath, fTestSize, nclfA, nclfD, nclfR):
+    def __init__(self, strDirPath, fTestSize, 
+                 nclfA, nclfD, nclfR,
+                 bShuffle=False, aStratify=None, aRS=None):
         print('CModels Object Created')
         self.m_strDirPath = strDirPath
         self.m_nclfA = nclfA
         self.m_nclfD = nclfD
         self.m_nclfR = nclfR
         self.mfTestSize = fTestSize #0.7
+
+        self.mShuffle = bShuffle
+        self.mStratify = aStratify
+        self.mRS = aRS # None: Random shuffling, 42: reproducible splits
 
     def chooseClassifier(self, nclf):
         clfs = [KNeighborsClassifier(5),  # 0
@@ -67,8 +73,8 @@ class CModels:
         X_train, X_test, y_train, self.y_test = train_test_split(listData,
                                                                  listLabel.ravel(),
                                                                  test_size=0.5,
-                                                                 shuffle=False,
-                                                                 stratify=None)
+                                                                 shuffle=self.mShuffle,
+                                                                 stratify=self.mStratify)
 
         print('Training Dataset', X_train.shape)
         print('Testing Dataset', X_test.shape)
@@ -130,8 +136,8 @@ class CModels:
         X_train, X_test, y_train, self.y_test = train_test_split(listData,
                                                                  listLabel.ravel(),
                                                                  test_size=0.5,
-                                                                 shuffle=False,
-                                                                 stratify=None)
+                                                                 shuffle=self.mShuffle,
+                                                                 stratify=self.mStratify)
 
         print('Training Dataset', X_train.shape)
         print('Testing Dataset', X_test.shape)
@@ -158,9 +164,11 @@ class CModels:
     # prepare training & test sets, fit clfD and clfA, return predictions predA/D/R
     def prepDataPreds(self):
         # Split data into train and test subsets, fit clfD and clfA
-        X_train, X_test, y_train, y_test = train_test_split(
-            self.mlistData, self.mlistLabel.ravel(),
-            test_size=0.3, shuffle=False)
+        X_train, X_test, y_train, y_test = train_test_split(self.mlistData, 
+                                                            self.mlistLabel.ravel(),
+                                                            test_size=0.3, 
+                                                            shuffle=self.mShuffle,
+                                                            stratify=self.mStratify)
 
         testp = y_test.sum()
         testn = len(y_test)-testp  # n. of pos & neg in test
@@ -434,13 +442,16 @@ class CModels:
         #testSize = 0.7  # size of test set out of the whole data set
 
         if bBeth == False:
-            X_trainALL, X_test, y_trainALL, y_test = train_test_split(
-                self.mlistData, self.mlistLabel.ravel(), 
-                test_size=self.mfTestSize, random_state = 42) #, shuffle=False)
+            X_trainALL, X_test, y_trainALL, y_test = train_test_split(self.mlistData, 
+                                                                      self.mlistLabel.ravel(), 
+                                                                      test_size=self.mfTestSize, 
+                                                                      random_state = 42) #, shuffle=False)
         else:
-            X_trainALL, X_test, y_trainALL, y_test = train_test_split(
-                self.mlistData, self.mlistLabel.ravel(), 
-                test_size=self.mfTestSize, shuffle=False)
+            X_trainALL, X_test, y_trainALL, y_test = train_test_split(self.mlistData, 
+                                                                      self.mlistLabel.ravel(),
+                                                                      test_size=self.mfTestSize, 
+                                                                      shuffle=self.mShuffle,
+                                                                      stratify=self.mStratify)
         
         XD_train, yD_train = self.tsetPrep(trainSize, X_trainALL, y_trainALL)
         self.clfA.fit(XD_train, yD_train)
@@ -597,13 +608,16 @@ class CModels:
     def predictDA(self, bBeth):  
         # Split data into train and test subsets (with testSize for test)
         if bBeth == False:
-            X_trainALL, X_test, y_trainALL, y_test = train_test_split(
-                self.mlistData, self.mlistLabel.ravel(), 
-                test_size=self.mfTestSize, random_state = 42) #, shuffle=False)
+            X_trainALL, X_test, y_trainALL, y_test = train_test_split(self.mlistData, 
+                                                                      self.mlistLabel.ravel(),
+                                                                      test_size=self.mfTestSize, 
+                                                                      random_state = 42) #, shuffle=False)
         else:
-            X_trainALL, X_test, y_trainALL, y_test = train_test_split(
-                self.mlistData, self.mlistLabel.ravel(), 
-                test_size=self.mfTestSize, shuffle=False)
+            X_trainALL, X_test, y_trainALL, y_test = train_test_split(self.mlistData, 
+                                                                      self.mlistLabel.ravel(), 
+                                                                      test_size=self.mfTestSize, 
+                                                                      shuffle=self.mShuffle,
+                                                                      stratify=self.mStratify)
         #print('predictDA::DATA', X_trainALL.shape, X_test.shape)
         #print('predictDA::LABEL:', np.bincount(y_trainALL), np.bincount(y_test))
         
