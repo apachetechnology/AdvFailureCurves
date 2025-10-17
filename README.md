@@ -10,6 +10,9 @@
 ## Generate Synthetic Data
     Run nbGenSynData.ipynb 
 
+## Generate Adversarial Data
+    Run nbAdvExData.ipynb 
+
 # Requirements
 ## CTGAN
 py -3.9 -m pip install ctgan
