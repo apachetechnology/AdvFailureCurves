@@ -529,10 +529,10 @@ class CModels:
                 tpr_aucAs += [roc_aucA]  # accumulate results
 
             print("rw100 = ", self.rw100, " repeats = ", nRepeats)
-            print("np.mean(tpr_aucAs)", round(np.mean(tpr_aucAs), 3))
-            print("np.mean(tpr_aucRs)", round(np.mean(tpr_aucRs), 3))
-            #print("np.mean(utpr_aucRs)", round(np.mean(utpr_aucRs), 3))
-            print("np.mean(afr_aucRs)", round(np.mean(afr_aucRs), 3))
+            print("mean(tpr_aucAs)", round(np.mean(tpr_aucAs), 3))
+            print("mean(tpr_aucRs)", round(np.mean(tpr_aucRs), 3))
+            #print("mean(utpr_aucRs)", round(np.mean(utpr_aucRs), 3))
+            print("mean(afr_aucRs)", round(np.mean(afr_aucRs), 3))
 
             # add mean and std_dev of tpr,utpr & afr for R and tpr for A
             # to the corresponding lists, holding such values for each rw100 value
@@ -608,24 +608,28 @@ class CModels:
     def predictDA(self, bBeth):  
         # Split data into train and test subsets (with testSize for test)
         if bBeth == False:
-            X_trainALL, X_test, y_trainALL, y_test = train_test_split(self.mlistData, 
-                                                                      self.mlistLabel.ravel(),
-                                                                      test_size=self.mfTestSize, 
-                                                                      random_state = 42) #, shuffle=False)
+            X_trainALL, X_test, y_trainALL, y_test = train_test_split(
+                self.mlistData, 
+                self.mlistLabel.ravel(),
+                test_size=self.mfTestSize, 
+                random_state = 42) #, shuffle=False)
         else:
-            X_trainALL, X_test, y_trainALL, y_test = train_test_split(self.mlistData, 
-                                                                      self.mlistLabel.ravel(), 
-                                                                      test_size=self.mfTestSize, 
-                                                                      shuffle=self.mShuffle,
-                                                                      stratify=self.mStratify)
+            X_trainALL, X_test, y_trainALL, y_test = train_test_split(
+                self.mlistData, 
+                self.mlistLabel.ravel(), 
+                test_size=self.mfTestSize, 
+                shuffle=self.mShuffle,
+                stratify=self.mStratify)
         #print('predictDA::DATA', X_trainALL.shape, X_test.shape)
         #print('predictDA::LABEL:', np.bincount(y_trainALL), np.bincount(y_test))
         
-        XD_train, yD_train = self.tsetPrep(self.mTrainSize, X_trainALL, y_trainALL.ravel())
+        XD_train, yD_train = self.tsetPrep(self.mTrainSize, X_trainALL, 
+                                           y_trainALL.ravel())
         #print('predictDA::DATA_D', XD_train.shape, yD_train.shape)
         self.clfD.fit(XD_train, yD_train)
 
-        XA_train, yA_train = self.tsetPrep(self.mTrainSize, X_trainALL, y_trainALL.ravel())
+        XA_train, yA_train = self.tsetPrep(self.mTrainSize, X_trainALL, 
+                                           y_trainALL.ravel())
         #print('predictDA::DATA_A', XA_train.shape, yA_train.shape)
         # XA_train=X_trainALL; yA_train=y_trainALL
         self.clfA.fit(XA_train, yA_train)
@@ -684,9 +688,11 @@ class CModels:
         self.mlistLabel = listLabel
     
         np.random.seed(None)
+        # Choose defender's classifier
         self.clfD = self.chooseClassifier(self.m_nclfD)
         clfD_name = ' D: ' + str(type(self.clfD)).split(".")[-1][:-2]
 
+        # Choose adversary's classifier
         self.clfA = self.chooseClassifier(self.m_nclfA)
         clfA_name = ' A: ' + str(type(self.clfA)).split(".")[-1][:-2]
 
@@ -702,25 +708,26 @@ class CModels:
  
         # arrTrainPercent = [100,100-step,100-2*step,...,2]/100
         arrTrainPercent = np.flip(np.arange(100, 0, -nSteps)/100)
-        print(arrTrainPercent)
+        print('TrainPercent:', arrTrainPercent)
 
         # Here we are selecting training data with diffirent
         # training percentage
         for self.mTrainSize in arrTrainPercent:
-            print(self.mTrainSize)
+            print('Train size Fraction:', self.mTrainSize)
             tpr_aucDs = []
             #utpr_aucDs = []
             afr_aucDs = []  # list of results
-            for i in range(nRepeats):  # add roc values to corresponding lists at each iteration
+            for i in range(nRepeats):  
+                # add roc values to corresponding lists at each iteration
                 roc_aucD, roc_aucA, afr_aucD = self.computeAUCsDA(bBeth)
                 tpr_aucDs += [roc_aucD]
                 #utpr_aucDs += [utpr_aucD]
                 afr_aucDs += [afr_aucD]
 
             print("trainSize = ", self.mTrainSize, " repeats = ", nRepeats)
-            print("np.mean(tpr_aucDs)", round(np.mean(tpr_aucDs), 3))
-            #print("np.mean(utpr_aucDs)", round(np.mean(utpr_aucDs), 3))
-            print("np.mean(afr_aucDs)", round(np.mean(afr_aucDs), 3))
+            print("mean(tpr_aucDs)", round(np.mean(tpr_aucDs), 3))
+            #print("mean(utpr_aucDs)", round(np.mean(utpr_aucDs), 3))
+            print("mean(afr_aucDs)", round(np.mean(afr_aucDs), 3))
 
             # compute means and stds of lists obtained in the previous for cycle
             # and accumulate results in the corresponding lists of means and st_devs
