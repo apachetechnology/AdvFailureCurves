@@ -19,29 +19,27 @@ from Core.plots import CPlots
     #4	43	44	45
     #5	53	54	55
 def Run_RTrain(strDirPath, fTestSize, listSelectedClassifier,
-               listData, listLabel, nEPOCHS, nSteps,
-               bShuffle, aStratify, aRS):
+               listData, listLabel, nEPOCHS, nSteps, bBethOOS,
+               bShuffle=False, aRS=None):
     # Defender's vs Adversary's Capability
     for nclfD in listSelectedClassifier:
         for nclfA in listSelectedClassifier:
             print('Combination - D: ', nclfD, 'A: ', nclfA)
             objM = CModels(strDirPath, fTestSize, 
                            nclfA, nclfD, -1,
-                           bShuffle, aStratify, aRS)
-            objM.Run_RTrainSize(listData, listLabel, nEPOCHS, nSteps)
-            break
-        break
+                           bShuffle, aRS)
+            objM.Run_RTrainSize(listData, listLabel, nEPOCHS, nSteps, bBethOOS)
+            #break
+        #break
 
 def Run_RV(strDirPath, fTestSize, listSelectedClassifier,
-           listData, listLabel, nEPOCHS, nSteps,
-           bShuffle, aStratify, aRS):
+           listData, listLabel, nEPOCHS, nSteps):
     for nclfA in listSelectedClassifier:
         objM = CModels(strDirPath, fTestSize, 
                        nclfA, -1, -1,
-                       bShuffle, aStratify, aRS)
+                       bShuffle=False, aRS=None)
         objM.Run_RV(listData, listLabel, nEPOCHS, nSteps)
         #break
-
 
 def Plot_RTrain_Results(strDirPath, listSelectedClassifier,
                         nSteps, nEPOCHS):

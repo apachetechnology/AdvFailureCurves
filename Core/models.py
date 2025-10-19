@@ -25,8 +25,7 @@ from .plots import CPlots
 # Class CModels
 class CModels:
     def __init__(self, strDirPath, fTestSize, 
-                 nclfA, nclfD, nclfR,
-                 bShuffle=False, aStratify=None, aRS=None):
+                 nclfA, nclfD, nclfR, bShuffle, aRS):
         print('CModels Object Created')
         self.m_strDirPath = strDirPath
         self.m_nclfA = nclfA
@@ -35,7 +34,6 @@ class CModels:
         self.mfTestSize = fTestSize #0.7
 
         self.mShuffle = bShuffle
-        self.mStratify = aStratify
         self.mRS = aRS # None: Random shuffling, 42: reproducible splits
 
     def chooseClassifier(self, nclf):
@@ -71,10 +69,9 @@ class CModels:
     def RunROC(self, listData, listLabel):
         # Split the dataset
         X_train, X_test, y_train, self.y_test = train_test_split(listData,
-                                                                 listLabel.ravel(),
-                                                                 test_size=0.5,
-                                                                 shuffle=self.mShuffle,
-                                                                 stratify=self.mStratify)
+            listLabel.ravel(),
+            test_size=0.5,
+            shuffle=self.mShuffle)
 
         print('Training Dataset', X_train.shape)
         print('Testing Dataset', X_test.shape)
@@ -134,10 +131,9 @@ class CModels:
     def RunAROC(self, listData, listLabel):
         # Split the dataset
         X_train, X_test, y_train, self.y_test = train_test_split(listData,
-                                                                 listLabel.ravel(),
-                                                                 test_size=0.5,
-                                                                 shuffle=self.mShuffle,
-                                                                 stratify=self.mStratify)
+            listLabel.ravel(),
+            test_size=0.5,
+            shuffle=self.mShuffle)
 
         print('Training Dataset', X_train.shape)
         print('Testing Dataset', X_test.shape)
@@ -165,10 +161,9 @@ class CModels:
     def prepDataPreds(self):
         # Split data into train and test subsets, fit clfD and clfA
         X_train, X_test, y_train, y_test = train_test_split(self.mlistData, 
-                                                            self.mlistLabel.ravel(),
-                                                            test_size=0.3, 
-                                                            shuffle=self.mShuffle,
-                                                            stratify=self.mStratify)
+            self.mlistLabel.ravel(),
+            test_size=0.3, 
+            shuffle=self.mShuffle)
 
         testp = y_test.sum()
         testn = len(y_test)-testp  # n. of pos & neg in test
@@ -439,21 +434,22 @@ class CModels:
     # compute AUC wrt tpr, udpr and afr for R, and wrt to tpr for A
     # fit clfA, compute predictions predA, randomize into predR
     # Split data into train and test subsets, fit clfA ###############
-    def predictRA(self, bBeth):
+    def predictRA(self, bBethOOS):
         trainSize = 1.0
         #testSize = 0.7  # size of test set out of the whole data set
 
-        if bBeth == False:
+        if bBethOOS == True:
             X_trainALL, X_test, y_trainALL, y_test = train_test_split(self.mlistData, 
-                                                                      self.mlistLabel.ravel(), 
-                                                                      test_size=self.mfTestSize, 
-                                                                      random_state = 42) #, shuffle=False)
+                self.mlistLabel.ravel(),
+                test_size=self.mfTestSize, 
+                shuffle=self.mShuffle)
         else:
             X_trainALL, X_test, y_trainALL, y_test = train_test_split(self.mlistData, 
-                                                                      self.mlistLabel.ravel(),
-                                                                      test_size=self.mfTestSize, 
-                                                                      shuffle=self.mShuffle,
-                                                                      stratify=self.mStratify)
+                self.mlistLabel.ravel(), 
+                test_size=self.mfTestSize, 
+                random_state = 42)
+            #, shuffle=False)
+            
         
         XD_train, yD_train = self.tsetPrep(trainSize, X_trainALL, y_trainALL)
         self.clfA.fit(XD_train, yD_train)
@@ -466,8 +462,8 @@ class CModels:
         predR = predA*(1-self.rw100/100) + (rnums*self.rw100) / 100  # randomized predA
         return (predR, predA, y_test)
 
-    def computeAUCsRA(self, bBeth=False):
-        predR, predA, y_test = self.predictRA(bBeth)
+    def computeAUCsRA(self, bBethOOS):
+        predR, predA, y_test = self.predictRA(bBethOOS)
         testp = y_test.sum()
         testn = len(y_test) - testp  # number of pos & neg in test
 
@@ -607,38 +603,42 @@ class CModels:
 
     # ------------------------------------------------------------------------
     # prepare D & A predicitons for xtest
-    def predictDA(self, epoch_num, bBeth):  
+    def predictDA(self, epoch_num, bBethOOS):  
         # Split data into train and test subsets (with testSize for test)
-        if bBeth == False:
+        if bBethOOS == True:
+            X_trainALL, X_test, y_trainALL, y_test = train_test_split(
+                self.mlistData, 
+                self.mlistLabel.ravel(), 
+                test_size=self.mfTestSize, 
+                shuffle=self.mShuffle)
+        else:
+            # Setting random_state = 42 (or any integer) 
+            # ensures that the random split of the data into training and test sets 
+            # is reproducible, meaning the same split will occur every time you run 
+            # the code with the same random_state value.
             X_trainALL, X_test, y_trainALL, y_test = train_test_split(
                 self.mlistData, 
                 self.mlistLabel.ravel(),
                 test_size=self.mfTestSize, 
                 random_state = 42) #, shuffle=False)
-        else:
-            X_trainALL, X_test, y_trainALL, y_test = train_test_split(
-                self.mlistData, 
-                self.mlistLabel.ravel(), 
-                test_size=self.mfTestSize, 
-                shuffle=self.mShuffle,
-                stratify=self.mStratify)
+            
         #print('predictDA::DATA:', X_trainALL.shape, X_test.shape)
         #print('predictDA::LABEL:', np.bincount(y_trainALL), np.bincount(y_test))
         
         # DEFENDER
         XD_train, yD_train = self.tsetPrep(self.mTrainSize, X_trainALL, 
                                            y_trainALL.ravel())
-        unique_labels, counts = np.unique(yD_train, return_counts=True)
-        print('predictDA::DATA_D: #_', epoch_num, XD_train.shape, yD_train.shape,
-              unique_labels, counts)
+        #unique_labels, counts = np.unique(yD_train, return_counts=True)
+        #print('predictDA::DATA_D: #_', epoch_num, XD_train.shape, yD_train.shape,
+        #      unique_labels, counts)
         self.clfD.fit(XD_train, yD_train)
 
         # ADVERSARY
         XA_train, yA_train = self.tsetPrep(self.mTrainSize, X_trainALL, 
                                            y_trainALL.ravel())
-        unique_labels, counts = np.unique(yA_train, return_counts=True)
-        print('predictDA::DATA_A: #_', epoch_num, XA_train.shape, yA_train.shape,
-              unique_labels, counts)
+        #unique_labels, counts = np.unique(yA_train, return_counts=True)
+        #print('predictDA::DATA_A: #_', epoch_num, XA_train.shape, yA_train.shape,
+        #      unique_labels, counts)
         # XA_train=X_trainALL; yA_train=y_trainALL
         self.clfA.fit(XA_train, yA_train)
 
@@ -649,8 +649,8 @@ class CModels:
 
     # compute AUC wrt tpr, udpr and afr for D, and wrt tpr for A
     # RTRAIN  
-    def computeAUCsDA(self, epoch_num, bBeth):  
-        predD, predA, y_test = self.predictDA(epoch_num, bBeth)
+    def computeAUCsDA(self, epoch_num, bBethOOS):  
+        predD, predA, y_test = self.predictDA(epoch_num, bBethOOS)
         testp = y_test.sum()
         testn = len(y_test)-testp  # number of pos & neg in test
 
@@ -691,7 +691,7 @@ class CModels:
         sys.stdout = original_stdout
 
     def Run_RTrainSize(self, listData, listLabel, 
-                       nEPOCHS = 2, nSteps = 5, bBeth = False):
+                       nEPOCHS, nSteps, bBethOOS):
         self.mlistData = listData
         self.mlistLabel = listLabel
     
@@ -727,7 +727,7 @@ class CModels:
             afr_aucDs = []  # list of results
             for epoch_num in range(nEPOCHS):  
                 # add roc values to corresponding lists at each iteration
-                roc_aucD, roc_aucA, afr_aucD = self.computeAUCsDA(epoch_num, bBeth)
+                roc_aucD, roc_aucA, afr_aucD = self.computeAUCsDA(epoch_num, bBethOOS)
                 tpr_aucDs += [roc_aucD]
                 #utpr_aucDs += [utpr_aucD]
                 afr_aucDs += [afr_aucD]
