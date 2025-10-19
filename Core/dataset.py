@@ -148,7 +148,7 @@ class CDataset:
         # df = pd.concat(frames)
         print(dfData.groupby('label').size())
 
-        dfData.to_csv('./local-data/' + strOutName + '.csv', index=False)
+        dfData.to_csv('../../DATA/' + strOutName + '.csv', index=False)
 
     def WriteSelectedKyotoDS(self):
         strFileName = r'../Kyoto2015-12/20151201.txt'
@@ -161,21 +161,21 @@ class CDataset:
         #self.PrepareSelectedKyotoDS(strFileName, '20151231')
 
     def CreateBalanceDS(self, strFileName):
-        df_01 = pd.read_csv(r'./local-data/Kyoto2015-12/20151201.csv', delimiter=',')
+        df_01 = pd.read_csv(r'../../DATA/Kyoto2015-12/20151201.csv', delimiter=',')
         print(df_01.groupby('label').size())
 
         df_01_Normal = df_01.loc[df_01['label'] == 0]
         df_01_Attack = df_01.loc[df_01['label'] == 1]
         df_01_Attack = df_01_Attack.sample(n=10000)
 
-        df_15 = pd.read_csv(r'./local-data/Kyoto2015-12/20151215.csv', delimiter=',')
+        df_15 = pd.read_csv(r'../../DATA/Kyoto2015-12/20151215.csv', delimiter=',')
         print(df_15.groupby('label').size())
 
         df_15_Normal = df_15.loc[df_15['label'] == 0]
         df_15_Attack = df_15.loc[df_15['label'] == 1]
         df_15_Attack = df_15_Attack.sample(n=10000)
 
-        df_31 = pd.read_csv(r'./local-data/Kyoto2015-12/20151231.csv', delimiter=',')
+        df_31 = pd.read_csv(r'../../DATA/Kyoto2015-12/20151231.csv', delimiter=',')
         print(df_31.groupby('label').size())
 
         df_31_Normal = df_31.loc[df_31['label'] == 0]
@@ -205,83 +205,105 @@ class CDataset:
         return listData, listLabel
 
 ################################################################
+class CDatasetWrapper:
+    def __init__(self):
+        print('CDatasetWrapper Object Created')
+        self.mDS = CDataset()
+
+    def DS_DIGIT(self):
+        listData, listLabel = self.mDS.PrepareDigitDS()
+        print(len(listLabel))
+        # print(listLabels)
+        
+        fTestSize = 0.7
+        X_trainALL, X_test, y_trainALL, y_test = train_test_split(
+                listData, listLabel.ravel(), 
+                test_size=fTestSize,  random_state = 42)
+        print('Total:' , listData.shape, 'Training:', X_trainALL.shape)
+
+        unique, counts = np.unique(y_trainALL, return_counts=True)
+        print(unique, counts)
+
+        unique, counts = np.unique(y_test, return_counts=True)
+        print(unique, counts)
+
+    def DS_KYOTO(self, strFileName):
+        #self.mDS.CreateBalanceDS(strFileName)
+
+        listData, listLabel = self.mDS.GetKyotoDataset(strFileName)
+        print('Kyoto: ', listData.shape, listLabel.shape)
+        
+        fTestSize = 0.9
+        X_trainALL, X_test, y_trainALL, y_test = train_test_split(
+                listData, listLabel.ravel(), 
+                test_size=fTestSize,  random_state = 42)
+        print('Total:' , listData.shape, 'Training:', X_trainALL.shape)
+
+        unique, counts = np.unique(y_trainALL, return_counts=True)
+        print(unique, counts)
+
+        unique, counts = np.unique(y_test, return_counts=True)
+        print(unique, counts)
+
+    def DS_BETH_OOS(self, strFileName):
+        listData, listLabel = self.mDS.GetBethDataset(strFileName)
+        print(listData.shape, listLabel.shape)
+
+        fTestSize = 0.1656035
+        X_trainALL, X_test, y_trainALL, y_test = train_test_split(
+                listData, listLabel.ravel(), 
+                #test_size=fTestSize,  random_state = 42)
+                test_size=fTestSize, shuffle = False)
+        print('Total:' , listData.shape, 
+            'Training:', X_trainALL.shape,
+            'Testing:', X_test.shape)
+        
+        print(X_trainALL.shape, X_test.shape)
+        unique, counts = np.unique(y_trainALL, return_counts=True)
+        print(unique, counts)
+
+        unique, counts = np.unique(y_test, return_counts=True)
+        print(unique, counts)
+
+    def DS_BETH_IS(self, strFileName):
+        listData, listLabel = self.mDS.GetBethDataset(strFileName)
+        print(listData.shape, listLabel.shape)
+
+        fTestSize = 0.9
+        X_trainALL, X_test, y_trainALL, y_test = train_test_split(
+                listData, listLabel.ravel(), 
+                test_size=fTestSize,  random_state = 42)
+        print('Total:' , listData.shape, 
+            'Training:', X_trainALL.shape, 
+            'Testing:', X_test.shape)
+
+        print(X_trainALL.shape, X_test.shape)
+        unique, counts = np.unique(y_trainALL, return_counts=True)
+        print(unique, counts)
+
+        unique, counts = np.unique(y_test, return_counts=True)
+        print(unique, counts)
+
+################################################################
 if __name__ == '__main__':
 
-    objDS = CDataset()
     #objDS.WriteSelectedKyotoDS()
 
+    oDW = CDatasetWrapper()
+
     # DIGIT
-    listData, listLabel = objDS.PrepareDigitDS()
-    print(len(listLabel))
-    # print(listLabels)
-    
-    fTestSize = 0.7
-    X_trainALL, X_test, y_trainALL, y_test = train_test_split(
-            listData, listLabel.ravel(), 
-            test_size=fTestSize,  random_state = 42)
-    print('Total:' , listData.shape, 'Training:', X_trainALL.shape)
-
-    unique, counts = np.unique(y_trainALL, return_counts=True)
-    print(unique, counts)
-
-    unique, counts = np.unique(y_test, return_counts=True)
-    print(unique, counts)
-    
+    oDW.DS_DIGIT()
 
     # KYOTO
-    strFileName = r'./local-data/Kyoto2015DS.csv'
-    #objDS.CreateBalanceDS(strFileName)
-
-    listData, listLabel = objDS.GetKyotoDataset(strFileName)
-    print('Kyoto: ', listData.shape, listLabel.shape)
-    
-    fTestSize = 0.9
-    X_trainALL, X_test, y_trainALL, y_test = train_test_split(
-            listData, listLabel.ravel(), 
-            test_size=fTestSize,  random_state = 42)
-    print('Total:' , listData.shape, 'Training:', X_trainALL.shape)
-
-    unique, counts = np.unique(y_trainALL, return_counts=True)
-    print(unique, counts)
-
-    unique, counts = np.unique(y_test, return_counts=True)
-    print(unique, counts)
+    strFileName = r'../../DATA/Kyoto2015DS.csv'
+    oDW.DS_KYOTO(strFileName)
 
     # BETH
-    strFileName = r'./local-data/BethDataset16Aug2023.csv'
-    listData, listLabel = objDS.GetBethDataset(strFileName)
-    print(listData.shape, listLabel.shape)
+    strFileName = r'../../DATA/Beth_16Aug2023.csv'
+    oDW.DS_BETH_OOS(strFileName)
+    oDW.DS_BETH_IS(strFileName)
 
-    fTestSize = 0.9
-    X_trainALL, X_test, y_trainALL, y_test = train_test_split(
-            listData, listLabel.ravel(), 
-            test_size=fTestSize,  random_state = 42)
-    print('Total:' , listData.shape, 
-          'Training:', X_trainALL.shape, 
-          'Testing:', X_test.shape)
-
-    print(X_trainALL.shape, X_test.shape)
-    unique, counts = np.unique(y_trainALL, return_counts=True)
-    print(unique, counts)
-
-    unique, counts = np.unique(y_test, return_counts=True)
-    print(unique, counts)
-
-    fTestSize = 0.1656035
-    X_trainALL, X_test, y_trainALL, y_test = train_test_split(
-            listData, listLabel.ravel(), 
-            #test_size=fTestSize,  random_state = 42)
-            test_size=fTestSize, shuffle = False)
-    print('Total:' , listData.shape, 
-          'Training:', X_trainALL.shape,
-          'Testing:', X_test.shape)
     
-    print(X_trainALL.shape, X_test.shape)
-    unique, counts = np.unique(y_trainALL, return_counts=True)
-    print(unique, counts)
-
-    unique, counts = np.unique(y_test, return_counts=True)
-    print(unique, counts)
 
 
     

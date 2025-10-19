@@ -234,9 +234,9 @@ class CModels:
 
         aroc_aucRas = 0  # fpr/afr values for R
         # number of iterations (repeat and plot mean tpr/utpr/afr curves)
-        nRepeats = 10
-        for i in range(nRepeats):  # repeat everything below 'repeats' times, acc results
-            print('Iteration:', i)
+        nEPOCHS = 10
+        for epoch_num in range(nEPOCHS):  # repeat everything below 'EPOCHS' times, acc results
+            print('EPOCHS#_', epoch_num)
             # split dataset, get Preds
             predD, predA, predR, y_test, testp, testn = self.prepDataPreds()  
             objPlots = CPlots(testp, testn)
@@ -344,30 +344,30 @@ class CModels:
 
         # compute mean tpr,utpr,afr curves, and corresponding AUCs
         # 1) mean tpr for clfD and corresponding roc_AUC
-        mfprD = fprDs/nRepeats
-        mtprD = tprDs/nRepeats
-        mroc_aucD = roc_aucDs/nRepeats  # tpr
+        mfprD = fprDs/nEPOCHS
+        mtprD = tprDs/nEPOCHS
+        mroc_aucD = roc_aucDs/nEPOCHS  # tpr
 
         # 2) mean tpr for clfR and corresponding roc_AUC
-        mfprR = fprRs/nRepeats
-        mtprR = tprRs/nRepeats
-        mroc_aucR = roc_aucRs/nRepeats  # tpr
+        mfprR = fprRs/nEPOCHS
+        mtprR = tprRs/nEPOCHS
+        mroc_aucR = roc_aucRs/nEPOCHS  # tpr
 
         # 3) mean utpr and afr for clfD w.r.t. clfA and corresponding utpr/afr_roc_AUC
-        mfprDu = fprDus/nRepeats
-        mutprD = utprDs/nRepeats
-        maroc_aucDu = aroc_aucDus/nRepeats  # utpr
-        mfprDa = fprDas/nRepeats
-        mafrD = afrDs/nRepeats
-        maroc_aucDa = aroc_aucDas/nRepeats  # afr
+        mfprDu = fprDus/nEPOCHS
+        mutprD = utprDs/nEPOCHS
+        maroc_aucDu = aroc_aucDus/nEPOCHS  # utpr
+        mfprDa = fprDas/nEPOCHS
+        mafrD = afrDs/nEPOCHS
+        maroc_aucDa = aroc_aucDas/nEPOCHS  # afr
 
         # 4) mean utpr and afr for clfR w.r.t. clfA and corresponding utpr/afr_roc_AUC
-        mfprRu = fprRus/nRepeats
-        mutprR = utprRs/nRepeats
-        maroc_aucRu = aroc_aucRus/nRepeats  # utpr
-        mfprRa = fprRas/nRepeats
-        mafrR = afrRs/nRepeats
-        maroc_aucRa = aroc_aucRas/nRepeats  # afr
+        mfprRu = fprRus/nEPOCHS
+        mutprR = utprRs/nEPOCHS
+        maroc_aucRu = aroc_aucRus/nEPOCHS  # utpr
+        mfprRa = fprRas/nEPOCHS
+        mafrR = afrRs/nEPOCHS
+        maroc_aucRa = aroc_aucRas/nEPOCHS  # afr
 
         objPlots = CPlots(-1, -1)
         fig = plt.figure(1)
@@ -419,17 +419,19 @@ class CModels:
     # threshold classification & roc analysis
     # prepare random trainset subset
     def tsetPrep(self, trainSize, X_trainALL, y_trainALL):
-        # repeat to find a subset with 2 classes
+        # Try 20 times to find a subset with 2 classes
         for i in range(20):
-            idx = np.random.choice(np.arange(len(X_trainALL)),
-                                   round(len(X_trainALL)*trainSize), replace=False)
+            # Here
+            nTrainSz = round(len(X_trainALL)*trainSize)
+            listIdx = np.random.choice(np.arange(len(X_trainALL)), nTrainSz, replace=False)
             # subset of X_trainaALL of size trainSize
-            SX_train = X_trainALL[idx]
-            Sy_train = y_trainALL[idx]  # corresponding classifications
-            if np.any(Sy_train) and np.any(Sy_train-1):  # not all 0s nor all 1s
+            SX_train = X_trainALL[listIdx]
+            Sy_train = y_trainALL[listIdx]  # Label
+            # not all 0s nor all 1s Labels
+            if np.any(Sy_train) and np.any(Sy_train-1):  
                 return (SX_train, Sy_train)  # subset acceptable, return it
-            else:
-                print('train set too small')  # try again
+            
+            print('train set too small')  # try again
         # never found a good one, will crash
         print('train set always too small')
         exit()
@@ -482,7 +484,7 @@ class CModels:
 
         return (roc_aucR, roc_aucA, afr_aucR)
 
-    def Run_RV(self, listData, listLabel, nRepeats, nSteps):
+    def Run_RV(self, listData, listLabel, nEPOCHS, nSteps):
         self.mlistData = listData
         self.mlistLabel = listLabel
 
@@ -507,7 +509,7 @@ class CModels:
         # new randoms at each run otherwise np.random.seed(0)
         np.random.seed(None)
 
-        #nRepeats = 3  # number of iterations
+        #nEPOCHS = 3  # number of iterations
         # size of steps from 0 to 100 for rw100 (0, step, 2*step, etc.)
         #nSteps = 5
         # [0, step, 2*step, ..., n] for n<=100
@@ -521,14 +523,14 @@ class CModels:
             afr_aucRs = []
             #utpr_aucRs = []  # lists of afr_AUC and utpr_AUC for R wrt A
 
-            for i in range(nRepeats):
+            for epoch_num in range(nEPOCHS):
                 roc_aucR, roc_aucA, afr_aucR = self.computeAUCsRA()
                 #utpr_aucRs += [utpr_aucR]
                 afr_aucRs += [afr_aucR]  # accumulate results
                 tpr_aucRs += [roc_aucR]
                 tpr_aucAs += [roc_aucA]  # accumulate results
 
-            print("rw100 = ", self.rw100, " repeats = ", nRepeats)
+            print("rw100 = ", self.rw100, " EPOCHS = ", nEPOCHS)
             print("mean(tpr_aucAs)", round(np.mean(tpr_aucAs), 3))
             print("mean(tpr_aucRs)", round(np.mean(tpr_aucRs), 3))
             #print("mean(utpr_aucRs)", round(np.mean(utpr_aucRs), 3))
@@ -569,7 +571,7 @@ class CModels:
 
         filename = self.m_strDirPath + \
                     '/A-' + str(self.m_nclfA) + \
-                    '_Steps-' + str(nSteps) + '_Rep-' + str(nRepeats)
+                    '_Steps-' + str(nSteps) + '_Rep-' + str(nEPOCHS)
         df.to_csv(filename + '.csv', index=False)
 
         # plot means for tpr (A and R), and for utpr and afr (R wrt A)
@@ -605,7 +607,7 @@ class CModels:
 
     # ------------------------------------------------------------------------
     # prepare D & A predicitons for xtest
-    def predictDA(self, bBeth):  
+    def predictDA(self, epoch_num, bBeth):  
         # Split data into train and test subsets (with testSize for test)
         if bBeth == False:
             X_trainALL, X_test, y_trainALL, y_test = train_test_split(
@@ -620,17 +622,23 @@ class CModels:
                 test_size=self.mfTestSize, 
                 shuffle=self.mShuffle,
                 stratify=self.mStratify)
-        #print('predictDA::DATA', X_trainALL.shape, X_test.shape)
+        #print('predictDA::DATA:', X_trainALL.shape, X_test.shape)
         #print('predictDA::LABEL:', np.bincount(y_trainALL), np.bincount(y_test))
         
+        # DEFENDER
         XD_train, yD_train = self.tsetPrep(self.mTrainSize, X_trainALL, 
                                            y_trainALL.ravel())
-        #print('predictDA::DATA_D', XD_train.shape, yD_train.shape)
+        unique_labels, counts = np.unique(yD_train, return_counts=True)
+        print('predictDA::DATA_D: #_', epoch_num, XD_train.shape, yD_train.shape,
+              unique_labels, counts)
         self.clfD.fit(XD_train, yD_train)
 
+        # ADVERSARY
         XA_train, yA_train = self.tsetPrep(self.mTrainSize, X_trainALL, 
                                            y_trainALL.ravel())
-        #print('predictDA::DATA_A', XA_train.shape, yA_train.shape)
+        unique_labels, counts = np.unique(yA_train, return_counts=True)
+        print('predictDA::DATA_A: #_', epoch_num, XA_train.shape, yA_train.shape,
+              unique_labels, counts)
         # XA_train=X_trainALL; yA_train=y_trainALL
         self.clfA.fit(XA_train, yA_train)
 
@@ -641,8 +649,8 @@ class CModels:
 
     # compute AUC wrt tpr, udpr and afr for D, and wrt tpr for A
     # RTRAIN  
-    def computeAUCsDA(self, bBeth):  
-        predD, predA, y_test = self.predictDA(bBeth)
+    def computeAUCsDA(self, epoch_num, bBeth):  
+        predD, predA, y_test = self.predictDA(epoch_num, bBeth)
         testp = y_test.sum()
         testn = len(y_test)-testp  # number of pos & neg in test
 
@@ -659,13 +667,13 @@ class CModels:
         return (roc_aucD, roc_aucA, afr_aucD)
     
     # Deprecated - replaced by a csv file generation
-    def SaveRTrainData(self, nStep, nRepeats, 
+    def SaveRTrainData(self, nStep, nEPOCHS, 
                  mean_tpr_aucDs, mean_utpr_aucDs,
                  mean_afr_aucDs, std_tpr_aucDs,
                  std_utpr_aucDs, std_afr_aucDs):
         # save results in text form to a file with meaningful name
         original_stdout = sys.stdout
-        filename = '.\local-data\D:' + str(self.m_nclfD) + '_A:' + str(self.m_nclfA) + '_step:' + str(nStep) + '_rep:' + str(nRepeats)
+        filename = '.\local-data\D:' + str(self.m_nclfD) + '_A:' + str(self.m_nclfA) + '_step:' + str(nStep) + '_rep:' + str(nEPOCHS)
         filenametxt = filename + '.txt'
         with open(filenametxt, 'w') as f:
             # Change the standard output to the file we created.
@@ -673,7 +681,7 @@ class CModels:
             print('parameters: clfD:', self.clfD,
                   'clfA: ', self.clfA, 
                   'Step: ', nStep, 
-                  'repeats:', nRepeats)
+                  'EPOCHS:', nEPOCHS)
             print("mean_tpr_aucDs = ", mean_tpr_aucDs)
             print("mean_utpr_aucDs = ", mean_utpr_aucDs)
             print("mean_afr_aucDs = ", mean_afr_aucDs)
@@ -683,7 +691,7 @@ class CModels:
         sys.stdout = original_stdout
 
     def Run_RTrainSize(self, listData, listLabel, 
-                       nRepeats = 2, nSteps = 5, bBeth = False):
+                       nEPOCHS = 2, nSteps = 5, bBeth = False):
         self.mlistData = listData
         self.mlistLabel = listLabel
     
@@ -717,14 +725,14 @@ class CModels:
             tpr_aucDs = []
             #utpr_aucDs = []
             afr_aucDs = []  # list of results
-            for i in range(nRepeats):  
+            for epoch_num in range(nEPOCHS):  
                 # add roc values to corresponding lists at each iteration
-                roc_aucD, roc_aucA, afr_aucD = self.computeAUCsDA(bBeth)
+                roc_aucD, roc_aucA, afr_aucD = self.computeAUCsDA(epoch_num, bBeth)
                 tpr_aucDs += [roc_aucD]
                 #utpr_aucDs += [utpr_aucD]
                 afr_aucDs += [afr_aucD]
 
-            print("trainSize = ", self.mTrainSize, " repeats = ", nRepeats)
+            print("trainSize = ", self.mTrainSize, " EPOCHS = ", nEPOCHS)
             print("mean(tpr_aucDs)", round(np.mean(tpr_aucDs), 3))
             #print("mean(utpr_aucDs)", round(np.mean(utpr_aucDs), 3))
             print("mean(afr_aucDs)", round(np.mean(afr_aucDs), 3))
@@ -755,10 +763,10 @@ class CModels:
 
         # filename = '.\local-data\D-' + str(self.clfD).replace('()', '') + \
         #             '_A-' + str(self.clfA).replace('()', '') + \
-        #             '_Steps-' + str(nSteps) + '_Rep-' + str(nRepeats)
+        #             '_Steps-' + str(nSteps) + '_Rep-' + str(nEPOCHS)
         filename = self.m_strDirPath + \
                     '/D-' + str(self.m_nclfD) + '_A-' + str(self.m_nclfA) + \
-                    '_Steps-' + str(nSteps) + '_Rep-' + str(nRepeats)
+                    '_Steps-' + str(nSteps) + '_Rep-' + str(nEPOCHS)
         df.to_csv(filename + '.csv', index=False)
 
         # plot means for tpr, utpr and afr (D wrt A)

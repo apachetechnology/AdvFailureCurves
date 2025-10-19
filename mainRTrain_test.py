@@ -9,10 +9,7 @@ from Core.models import CModels
 from Core.dataset import CDataset
 from Core.plots import CPlots
 
-def Run_RTrain(strDirPath, fTestSize, listSelectedClassifier,
-               listData, listLabel, nRepeats, nSteps,
-               bShuffle, aStratify, aRS):
-    # Run Rtrain using below classifier combination
+# Run Rtrain using below classifier combination
     # Beth RandomForestClassifier(max_depth=5, n_estimators=10, max_features=5) #3
     # MLPClassifier(alpha=1, max_iter=100),  # 4
     # AdaBoostClassifier(),  # 5
@@ -21,30 +18,33 @@ def Run_RTrain(strDirPath, fTestSize, listSelectedClassifier,
     #3	33	34	35
     #4	43	44	45
     #5	53	54	55
-
+def Run_RTrain(strDirPath, fTestSize, listSelectedClassifier,
+               listData, listLabel, nEPOCHS, nSteps,
+               bShuffle, aStratify, aRS):
+    # Defender's vs Adversary's Capability
     for nclfD in listSelectedClassifier:
         for nclfA in listSelectedClassifier:
             print('Combination - D: ', nclfD, 'A: ', nclfA)
             objM = CModels(strDirPath, fTestSize, 
                            nclfA, nclfD, -1,
                            bShuffle, aStratify, aRS)
-            objM.Run_RTrainSize(listData, listLabel, nRepeats, nSteps)
-            #break
-        #break
+            objM.Run_RTrainSize(listData, listLabel, nEPOCHS, nSteps)
+            break
+        break
 
 def Run_RV(strDirPath, fTestSize, listSelectedClassifier,
-           listData, listLabel, nRepeats, nSteps,
+           listData, listLabel, nEPOCHS, nSteps,
            bShuffle, aStratify, aRS):
     for nclfA in listSelectedClassifier:
         objM = CModels(strDirPath, fTestSize, 
                        nclfA, -1, -1,
                        bShuffle, aStratify, aRS)
-        objM.Run_RV(listData, listLabel, nRepeats, nSteps)
+        objM.Run_RV(listData, listLabel, nEPOCHS, nSteps)
         #break
 
 
 def Plot_RTrain_Results(strDirPath, listSelectedClassifier,
-                        nSteps, nRepeats):
+                        nSteps, nEPOCHS):
     # This is for testing purpose
     # strOutDir = '2023-08-15_10_52_13'
     # strDirPath = os.path.join(os.getcwd(), 'local-data', strOutDir)
@@ -58,7 +58,7 @@ def Plot_RTrain_Results(strDirPath, listSelectedClassifier,
         for nclfA in listSelectedClassifier:
             filename = strDirPath + \
                     '/D-' + str(nclfD) + '_A-' + str(nclfA) + \
-                    '_Steps-' + str(nSteps) + '_Rep-' + str(nRepeats)
+                    '_Steps-' + str(nSteps) + '_Rep-' + str(nEPOCHS)
             print(filename + '.csv')
             dictDF[(nclfD, nclfA)] = pd.read_csv(filename + '.csv', delimiter=',')
         #END FOR
@@ -96,7 +96,7 @@ def Plot_RTrain_Results(strDirPath, listSelectedClassifier,
     for nclfA in listSelectedClassifier:
         filename = strDirPath + \
                    '/A-' + str(nclfA) + \
-                   '_Steps-' + str(nSteps) + '_Rep-' + str(nRepeats)
+                   '_Steps-' + str(nSteps) + '_Rep-' + str(nEPOCHS)
         print(filename + '.csv')
         dictDF_RV[nclfA] = pd.read_csv(filename + '.csv', delimiter=',')
 
@@ -137,7 +137,7 @@ def Plot_RTrain_Results(strDirPath, listSelectedClassifier,
 
     with open(strDirPath + '/Result.txt', 'w') as fp:
         fp.writelines('Classifiers: ' + str(listSelectedClassifier) + '\n')
-        fp.writelines('Repeats: ' + str(nRepeats) + '\n')
+        fp.writelines('Repeats: ' + str(nEPOCHS) + '\n')
         fp.writelines('Steps: ' + str(nSteps) + '\n')
         fp.writelines("Max afr for mean of matrix: " + str(np.round(maxAFRmatrix, 2)) + '\n')
         fp.writelines("Mean of max afr for all rows: " + str(np.round(maxAFRrowByRow,2)) + '\n')
@@ -161,18 +161,18 @@ if __name__ == '__main__':
         print(len(listLabel))
         # print(listLabels)
         fTestSize = 0.7
-        nRepeats = 1
+        nEPOCHS = 1
     elif cDATA == 'Kyoto':
         strFileName =  r'./local-data/Kyoto2015DS.csv'
         #strPath = os.path.join(strRoot, strFileName)
         listData, listLabel = objDS.GetKyotoDataset(strFileName)
         fTestSize = 0.9
-        nRepeats = 10
+        nEPOCHS = 10
     elif cDATA == 'Beth':
-        strFileName =  r'./local-data/BethDataset16Aug2023.csv'
+        strFileName =  r'../DATA/Beth_16Aug2023.csv'
         listData, listLabel = objDS.GetBethDataset(strFileName)
         fTestSize = 0.1656035
-        nRepeats = 10
+        nEPOCHS = 10
 
     nSteps = 5
 
@@ -184,10 +184,10 @@ if __name__ == '__main__':
 
     listSelectedClassifier = [3, 4, 5]
     # Run_RTrain(strDirPath, fTestSize, listSelectedClassifier,
-    #            listData, listLabel, nRepeats, nSteps)
+    #            listData, listLabel, nEPOCHS, nSteps)
     # Run_RV(strDirPath, fTestSize, listSelectedClassifier,
-    #        listData, listLabel, nRepeats, nSteps)
+    #        listData, listLabel, nEPOCHS, nSteps)
     # Plot_RTrain_Results(strDirPath, listSelectedClassifier, 
-    #                     nSteps, nRepeats)
+    #                     nSteps, nEPOCHS)
 
     print('DONE')
