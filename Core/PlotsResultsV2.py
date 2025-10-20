@@ -9,11 +9,39 @@ class CAnalyzeResults:
     def __init__(self):
         print('CAnalyzeResults Object Created')
 
-    def AnalyzeRTrain(self, strDirPath, listSelectedClassifier, 
+    def GetMeanAFR_aucRs(self, strDirPath, listAdvClassifier,
+                         nSteps, nRepeats):
+        # mean_afr_aucRs is mean of mean_afr_aucDs for each classifier
+        # obtained using post-learning randomization data from RV.py
+        dictDF_RV = {}
+        for nclfA in listAdvClassifier:
+            filename = strDirPath + \
+                    '/A-' + str(nclfA) + \
+                    '_Steps-' + str(nSteps) + '_Rep-' + str(nRepeats)
+            print(filename + '.csv')
+            dictDF_RV[nclfA] = pd.read_csv(filename + '.csv', delimiter=',')
+
+        df_1 = dictDF_RV[listAdvClassifier[0]]
+        self.arrRandomPercent = df_1.loc[:,['train_percent']].to_numpy() * 100
+        nRows = self.arrRandomPercent.shape[0]
+
+        mean_afr_aucRs_all = np.empty([nRows, 0])
+        mean_tpr_aucRs_all = np.empty([nRows, 0])
+        for nclfA in listAdvClassifier:
+            df_RV = dictDF_RV[nclfA]
+            mean_afr_aucRs_all = np.hstack((mean_afr_aucRs_all, df_RV.loc[:,['mean_afr_aucRs']].to_numpy()))
+            mean_tpr_aucRs_all = np.hstack((mean_tpr_aucRs_all, df_RV.loc[:,['mean_tpr_aucRs']].to_numpy()))
+
+        #print(mean_afr_aucRs_all)
+        self.mean_afr_aucRs = np.mean(mean_afr_aucRs_all, axis=1)
+        self.mean_tpr_aucRs = np.mean(mean_tpr_aucRs_all, axis=1)
+
+    def AnalyzeRTrain(self, strDirPath, 
+                      listDefClassifier, listAdvClassifier,
                       nSteps, nRepeats):
         dictDF = {}
-        for nclfD in listSelectedClassifier:
-            for nclfA in listSelectedClassifier:
+        for nclfD in listDefClassifier:
+            for nclfA in listAdvClassifier:
                 filename = strDirPath + \
                         '/D-' + str(nclfD) + '_A-' + str(nclfA) + \
                         '_Steps-' + str(nSteps) + '_Rep-' + str(nRepeats)
@@ -23,7 +51,7 @@ class CAnalyzeResults:
         #END FOR
 
         # Get the RF data from dictionary
-        df_11 = dictDF[(listSelectedClassifier[0], listSelectedClassifier[0])]
+        df_11 = dictDF[(listDefClassifier[0], listAdvClassifier[0])]
         self.arrTrainPercent = df_11.loc[:,['train_percent']].to_numpy()
         # print(df.loc[:,['train_percent']].to_numpy())
         #print(arrTrainPercent)
@@ -32,8 +60,8 @@ class CAnalyzeResults:
 
         mean_afr_aucDs_all = np.empty([self.mean_afr_aucDs11.shape[0], 0])
         mean_tpr_aucDs_all = np.empty([self.mean_afr_aucDs11.shape[0], 0])
-        for nclfD in listSelectedClassifier:
-            for nclfA in listSelectedClassifier:
+        for nclfD in listDefClassifier:
+            for nclfA in listAdvClassifier:
                 df = dictDF[(nclfD, nclfA)]
                 #print(df)
                 mean_afr_aucDs_all = np.hstack((mean_afr_aucDs_all, df.loc[:,['mean_afr_aucDs']].to_numpy()))
@@ -57,37 +85,8 @@ class CAnalyzeResults:
         self.mean_tpr_aucDs2 = np.mean(mean_tpr_aucDs_all[:,3:6], axis=1)
         self.mean_tpr_aucDs3 = np.mean(mean_tpr_aucDs_all[:,6:9], axis=1)
 
-
-    def GetMeanAFR_aucRs(self, strDirPath, listSelectedClassifier, 
-                         nSteps, nRepeats):
-        # mean_afr_aucRs is mean of mean_afr_aucDs for each classifier
-        # obtained using post-learning randomization data from RV.py
-        dictDF_RV = {}
-        for nclfA in listSelectedClassifier:
-            filename = strDirPath + \
-                    '/A-' + str(nclfA) + \
-                    '_Steps-' + str(nSteps) + '_Rep-' + str(nRepeats)
-            print(filename + '.csv')
-            dictDF_RV[nclfA] = pd.read_csv(filename + '.csv', delimiter=',')
-
-        df_1 = dictDF_RV[listSelectedClassifier[0]]
-        self.arrRandomPercent = df_1.loc[:,['train_percent']].to_numpy() * 100
-        nRows = self.arrRandomPercent.shape[0]
-
-        mean_afr_aucRs_all = np.empty([nRows, 0])
-        mean_tpr_aucRs_all = np.empty([nRows, 0])
-        for nclfA in listSelectedClassifier:
-            df_RV = dictDF_RV[nclfA]
-            mean_afr_aucRs_all = np.hstack((mean_afr_aucRs_all, df_RV.loc[:,['mean_afr_aucRs']].to_numpy()))
-            mean_tpr_aucRs_all = np.hstack((mean_tpr_aucRs_all, df_RV.loc[:,['mean_tpr_aucRs']].to_numpy()))
-
-        #print(mean_afr_aucRs_all)
-        self.mean_afr_aucRs = np.mean(mean_afr_aucRs_all, axis=1)
-        self.mean_tpr_aucRs = np.mean(mean_tpr_aucRs_all, axis=1)
-
-
-    def PrintResults(self, listSelectedClassifier, nSteps, nRepeats,
-                     strOutDir, strToken):
+    def PrintResults(self, listDefClassifier, listAdvClassifier, 
+                     nSteps, nRepeats, strOutDir, strToken):
         #print results of 4 different anti-evasion algorithms
         # Combined
         maxAFRrowByRow = (max(self.mean_afr_aucDs1) + max(self.mean_afr_aucDs2) + 
@@ -144,7 +143,8 @@ class CAnalyzeResults:
         print("Post-learn: Max ROC-AUC for post learning randomization: ", np.round(maxTPRpostLearn, 2))
 
         with open(strOutDir + '/Result' + strToken + '.txt' , 'w') as fp:
-            fp.writelines('Classifiers: ' + str(listSelectedClassifier) + '\n')
+            fp.writelines('Defender Classifiers: ' + str(listDefClassifier) + '\n')
+            fp.writelines('Adversary Classifiers: ' + str(listAdvClassifier) + '\n')
             fp.writelines('Repeats: ' + str(nRepeats) + '\n')
             fp.writelines('Steps: ' + str(nSteps) + '\n')
             
@@ -366,16 +366,22 @@ class CAnalyzeResults:
         plt.show()
         plt.clf()
 
+    # Updated on 20/10/2025
     def Plot_RTrain_Results(self, strTitle, strDirPath, strOutDir, strToken,
-                            listSelectedClassifier, nSteps, nRepeats):
-        if len(listSelectedClassifier) < 3:
+        listDefClassifier, listAdvClassifier, nSteps, nRepeats):
+        if len(listDefClassifier) < 3 or len(listAdvClassifier) < 3:
             print('Please select 3 classifiers.')
             return
 
-        self.GetMeanAFR_aucRs(strDirPath, listSelectedClassifier, nSteps, nRepeats)
-        self.AnalyzeRTrain(strDirPath, listSelectedClassifier, nSteps, nRepeats)
+        if not os.path.isdir(strOutDir):
+            os.makedirs(strOutDir)
+            
+        self.GetMeanAFR_aucRs(strDirPath, listAdvClassifier, nSteps, nRepeats)
+        self.AnalyzeRTrain(strDirPath, listDefClassifier, listAdvClassifier, 
+                           nSteps, nRepeats)
 
-        self.PrintResults(listSelectedClassifier, nSteps, nRepeats,
+        self.PrintResults(listDefClassifier, listAdvClassifier, 
+                          nSteps, nRepeats,
                           strOutDir, strToken)
         # 14th May 2024
         self.PlotResults_RF_MM(strOutDir, strToken)
@@ -390,7 +396,8 @@ if __name__ == '__main__':
     print(os.getcwd())
 
     # Specify parameters - Same as used to run the experiment
-    listSelectedClassifier = [3, 4, 5]
+    listDefClassifier = [3, 4, 5]
+    listAdvClassifier = [3, 4, 5]
     nSteps = 5
 
     strToken = '_Digit'
@@ -404,23 +411,23 @@ if __name__ == '__main__':
             nRepeats = 100
             strDirPath = '../Results25Aug23/Digit_2023-08-21_12_32_49'
             obj.Plot_RTrain_Results('Digit, Total: (1797, 64) Training: (539, 64)',
-                                    strDirPath, strOutDir, strToken,
-                                    listSelectedClassifier, nSteps, nRepeats)
+                strDirPath, strOutDir, strToken,
+                listDefClassifier, listAdvClassifier, nSteps, nRepeats)
         elif strToken == '_Kyoto':
             nRepeats = 10
             strDirPath = '../Results25Aug23/Kyoto_2023-08-21_14_36_44'
             obj.Plot_RTrain_Results('Kyoto, Total: (60000, 13) Training: (6000, 13)',
-                                    strDirPath, strOutDir, strToken,
-                                    listSelectedClassifier, nSteps, nRepeats)
+                strDirPath, strOutDir, strToken,
+                listDefClassifier, listAdvClassifier, nSteps, nRepeats)
         elif strToken == '_Beth_OoS':
             nRepeats = 10
             strDirPath = '../Results25Aug23/Beth_2023-08-23_11_37_54_OoS'
             obj.Plot_RTrain_Results('Beth Total: (1026970, 6) Training: (856900, 6)',
-                                    strDirPath, strOutDir, strToken,
-                                    listSelectedClassifier, nSteps, nRepeats)
+                strDirPath, strOutDir, strToken,
+                listDefClassifier, listAdvClassifier, nSteps, nRepeats)
         elif strToken == '_Beth_IS':
             nRepeats = 10
             strDirPath = '../Results25Aug23/Beth_2023-08-22_14_50_55_IS'
             obj.Plot_RTrain_Results('Beth Total: (1026970, 6) Training: (102697, 6)',
-                                    strDirPath, strOutDir, strToken,
-                                    listSelectedClassifier, nSteps, nRepeats)
+                strDirPath, strOutDir, strToken,
+                listDefClassifier, listAdvClassifier, nSteps, nRepeats)
