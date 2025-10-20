@@ -482,7 +482,7 @@ class CModels:
 
         return (roc_aucR, roc_aucA, afr_aucR)
 
-    def Run_RV(self, listData, listLabel, nEPOCHS, nSteps):
+    def Run_RV(self, listData, listLabel, nEPOCHS, nSteps, bBethOOS):
         self.mlistData = listData
         self.mlistLabel = listLabel
 
@@ -522,7 +522,7 @@ class CModels:
             #utpr_aucRs = []  # lists of afr_AUC and utpr_AUC for R wrt A
 
             for epoch_num in range(nEPOCHS):
-                roc_aucR, roc_aucA, afr_aucR = self.computeAUCsRA()
+                roc_aucR, roc_aucA, afr_aucR = self.computeAUCsRA(bBethOOS)
                 #utpr_aucRs += [utpr_aucR]
                 afr_aucRs += [afr_aucR]  # accumulate results
                 tpr_aucRs += [roc_aucR]

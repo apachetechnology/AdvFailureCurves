@@ -23,4 +23,7 @@ py -3.9 -m pip install scikit-learn adversarial-robustness-toolbox
 py -3.9 -m pip show scikit-learn
 py -3.9 -m pip install --upgrade adversarial-robustness-toolbox
 
+## CUDA
+py -3.9 -m pip install numba
+
 
