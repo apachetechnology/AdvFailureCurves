@@ -25,10 +25,13 @@ def Run_RTrain(strDirPath, fTestSize, listDefClassifier, listAdvClassifier,
     for nclfD in listDefClassifier:
         for nclfA in listAdvClassifier:
             print('Combination - D: ', nclfD, 'A: ', nclfA)
+            dtStart = datetime.now()
             objM = CModels(strDirPath, fTestSize, 
                            nclfA, nclfD, -1,
                            bShuffle, aRS)
             objM.Run_RTrainSize(listData, listLabel, nEPOCHS, nSteps, bBethOOS)
+            cpu_time = datetime.now() - dtStart
+            print(f'Time elapsed:{cpu_time/60.0} minutes')
             #break
         #break
 

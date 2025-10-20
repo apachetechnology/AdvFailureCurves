@@ -484,7 +484,7 @@ class CModels:
 
         return (roc_aucR, roc_aucA, afr_aucR)
 
-    @jit(target_backend='cuda')
+    #@jit(target_backend='cuda')
     def Run_RV(self, listData, listLabel, nEPOCHS, nSteps, bBethOOS):
         self.mlistData = listData
         self.mlistLabel = listLabel
@@ -695,7 +695,7 @@ class CModels:
             print("std_afr_aucDs = ", std_afr_aucDs)
         sys.stdout = original_stdout
 
-    @jit(target_backend='cuda')
+    #@jit(target_backend='cuda')
     def Run_RTrainSize(self, listData, listLabel, 
                        nEPOCHS, nSteps, bBethOOS):
         self.mlistData = listData
