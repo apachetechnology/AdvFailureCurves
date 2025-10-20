@@ -45,7 +45,7 @@ class CModels:
             AdaBoostClassifier(),  # 5
             GaussianNB(), # 6
             KNeighborsClassifier(n_neighbors=3, weights='distance', 
-                                 algorithm='kd_tree', p=2, metric='hamming'), # 7 
+                                 algorithm='kd_tree', p=2), # 7 
             ]  
         return (clfs[nclf])
 

@@ -163,6 +163,109 @@ def Plot_RTrain_Results():
         fp.writelines("Simple use of Random forest for full trainset: " + str(np.round(AFRrandomForest,2)) + '\n')
         fp.writelines("Max afr for post learning randomization: " + str(np.round(maxAFRpostLearn, 2)) + '\n')
 
+# Use nbPlotResults.ipynb
+# def Plot_RTrain_Results(strDirPath, listDefClassifier, listAdvClassifier,
+#                         nSteps, nEPOCHS):
+#     # This is for testing purpose
+#     # strOutDir = '2023-08-15_10_52_13'
+#     # strDirPath = os.path.join(os.getcwd(), 'local-data', strOutDir)
+
+#     if len(listDefClassifier) < 3 or len(listAdvClassifier) < 3:
+#         print('Please select 3 classifiers.')
+#         return
+
+#     dictDF = {}
+#     for nclfD in listDefClassifier:
+#         for nclfA in listAdvClassifier:
+#             filename = strDirPath + \
+#                     '/D-' + str(nclfD) + '_A-' + str(nclfA) + \
+#                     '_Steps-' + str(nSteps) + '_Rep-' + str(nEPOCHS)
+#             print(filename + '.csv')
+#             dictDF[(nclfD, nclfA)] = pd.read_csv(filename + '.csv', delimiter=',')
+#         #END FOR
+#     #END FOR
+
+#     #
+#     df_11 = dictDF[(listDefClassifier[0], listAdvClassifier[0])]
+#     arrTrainPercent = df_11.loc[:,['train_percent']].to_numpy()
+#     # print(df.loc[:,['train_percent']].to_numpy())
+#     print(arrTrainPercent)
+#     mean_afr_aucDs11 = df_11.loc[:,['mean_afr_aucDs']].to_numpy()
+
+#     mean_afr_aucDs_all = np.empty([mean_afr_aucDs11.shape[0], 0])
+#     for nclfD in listDefClassifier:
+#         for nclfA in listAdvClassifier:
+#             df = dictDF[(nclfD, nclfA)]
+#             #print(df)
+#             mean_afr_aucDs_all = np.hstack((mean_afr_aucDs_all, df.loc[:,['mean_afr_aucDs']].to_numpy()))
+#             #break
+#         #break
+
+#     # print(mean_afr_aucDs_all)
+#     # print(mean_afr_aucDs_all[:,0:3])
+#     # print(mean_afr_aucDs_all[:,3:6])
+#     # print(mean_afr_aucDs_all[:,6:9])
+
+#     mean_afr_aucDss = np.mean(mean_afr_aucDs_all, axis=1)
+#     mean_afr_aucDs1 = np.mean(mean_afr_aucDs_all[:,0:3], axis=1)
+#     mean_afr_aucDs2 = np.mean(mean_afr_aucDs_all[:,3:6], axis=1)
+#     mean_afr_aucDs3 = np.mean(mean_afr_aucDs_all[:,6:9], axis=1)
+
+#     # mean_afr_aucRs is mean of mean_afr_aucDs for each classifier
+#     # obtained using post-learning randomization data from RV.py
+#     dictDF_RV = {}
+#     for nclfA in listAdvClassifier:
+#         filename = strDirPath + \
+#                    '/A-' + str(nclfA) + \
+#                    '_Steps-' + str(nSteps) + '_Rep-' + str(nEPOCHS)
+#         print(filename + '.csv')
+#         dictDF_RV[nclfA] = pd.read_csv(filename + '.csv', delimiter=',')
+
+#     mean_afr_aucRs_all = np.empty([mean_afr_aucDs11.shape[0], 0])
+#     for nclfA in listAdvClassifier:
+#         df_RV = dictDF_RV[nclfA]
+#         mean_afr_aucRs_all = np.hstack((mean_afr_aucRs_all, df_RV.loc[1:mean_afr_aucDs11.shape[0],['mean_afr_aucRs']].to_numpy()))
+
+#     #print(mean_afr_aucRs_all)
+#     mean_afr_aucRs = np.mean(mean_afr_aucRs_all, axis=1)
+
+#     fig, ax = plt.subplots()
+#     ax.plot(arrTrainPercent, mean_afr_aucDss, label='afr_AUC for all')
+#     ax.plot(arrTrainPercent, mean_afr_aucDs1, label='afr_AUC row1')
+#     ax.plot(arrTrainPercent, mean_afr_aucDs2, label='afr_AUC row2')
+#     ax.plot(arrTrainPercent, mean_afr_aucDs3, label='afr_AUC row3')
+#     ax.plot(arrTrainPercent, mean_afr_aucDs11, label='afr_AUC RF')
+#     plt.plot(arrTrainPercent, mean_afr_aucRs, label='afr_AUC for post-learn randomization')
+#     ax.set_xticks(arrTrainPercent) 
+#     ax.legend(loc='best')
+
+#     plt.xticks(rotation ='vertical')
+#     plt.grid(True)
+#     plt.savefig(strDirPath + '/Result.pdf', dpi=300, bbox_inches='tight')
+#     #plt.show()
+#     plt.clf()
+
+#     #print results of 4 different anti-evasion algorithms
+#     maxAFRmatrix = max(mean_afr_aucDss)
+#     maxAFRrowByRow = (max(mean_afr_aucDs1) + max(mean_afr_aucDs2) + max(mean_afr_aucDs3))/3
+#     AFRrandomForest = mean_afr_aucDs11[mean_afr_aucDs11.shape[0]-1, 0]
+#     maxAFRpostLearn = max(mean_afr_aucRs)
+
+#     print("Max afr for mean of matrix: ", np.round(maxAFRmatrix, 2))
+#     print("Mean of max afr for all rows: ", np.round(maxAFRrowByRow,2))
+#     print("Simple use of Random forest for full trainset: ", np.round(AFRrandomForest,2))
+#     print("Max afr for post learning randomization: ", np.round(maxAFRpostLearn, 2))
+
+#     with open(strDirPath + '/Result.txt', 'w') as fp:
+#         fp.writelines('Defender Classifiers: ' + str(listDefClassifier) + '\n')
+#         fp.writelines('Adversary Classifiers: ' + str(listAdvClassifier) + '\n')
+#         fp.writelines('Repeats: ' + str(nEPOCHS) + '\n')
+#         fp.writelines('Steps: ' + str(nSteps) + '\n')
+#         fp.writelines("Max afr for mean of matrix: " + str(np.round(maxAFRmatrix, 2)) + '\n')
+#         fp.writelines("Mean of max afr for all rows: " + str(np.round(maxAFRrowByRow,2)) + '\n')
+#         fp.writelines("Simple use of Random forest for full trainset: " + str(np.round(AFRrandomForest,2)) + '\n')
+#         fp.writelines("Max afr for post learning randomization: " + str(np.round(maxAFRpostLearn, 2)) + '\n')
+
 ################################################################
 if __name__ == '__main__':
     print(os.getcwd())
