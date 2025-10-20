@@ -18,12 +18,12 @@ from Core.plots import CPlots
     #3	33	34	35
     #4	43	44	45
     #5	53	54	55
-def Run_RTrain(strDirPath, fTestSize, listSelectedClassifier,
+def Run_RTrain(strDirPath, fTestSize, listDefClassifier, listAdvClassifier,
                listData, listLabel, nEPOCHS, nSteps, bBethOOS,
                bShuffle=False, aRS=None):
     # Defender's vs Adversary's Capability
-    for nclfD in listSelectedClassifier:
-        for nclfA in listSelectedClassifier:
+    for nclfD in listDefClassifier:
+        for nclfA in listAdvClassifier:
             print('Combination - D: ', nclfD, 'A: ', nclfA)
             objM = CModels(strDirPath, fTestSize, 
                            nclfA, nclfD, -1,
@@ -32,28 +32,28 @@ def Run_RTrain(strDirPath, fTestSize, listSelectedClassifier,
             #break
         #break
 
-def Run_RV(strDirPath, fTestSize, listSelectedClassifier,
+def Run_RV(strDirPath, fTestSize, listAdvClassifier,
            listData, listLabel, nEPOCHS, nSteps):
-    for nclfA in listSelectedClassifier:
+    for nclfA in listAdvClassifier:
         objM = CModels(strDirPath, fTestSize, 
                        nclfA, -1, -1,
                        bShuffle=False, aRS=None)
         objM.Run_RV(listData, listLabel, nEPOCHS, nSteps)
         #break
 
-def Plot_RTrain_Results(strDirPath, listSelectedClassifier,
+def Plot_RTrain_Results(strDirPath, listDefClassifier, listAdvClassifier,
                         nSteps, nEPOCHS):
     # This is for testing purpose
     # strOutDir = '2023-08-15_10_52_13'
     # strDirPath = os.path.join(os.getcwd(), 'local-data', strOutDir)
 
-    if len(listSelectedClassifier) < 3:
+    if len(listDefClassifier) < 3 or len(listAdvClassifier) < 3:
         print('Please select 3 classifiers.')
         return
 
     dictDF = {}
-    for nclfD in listSelectedClassifier:
-        for nclfA in listSelectedClassifier:
+    for nclfD in listDefClassifier:
+        for nclfA in listAdvClassifier:
             filename = strDirPath + \
                     '/D-' + str(nclfD) + '_A-' + str(nclfA) + \
                     '_Steps-' + str(nSteps) + '_Rep-' + str(nEPOCHS)
@@ -63,15 +63,15 @@ def Plot_RTrain_Results(strDirPath, listSelectedClassifier,
     #END FOR
 
     #
-    df_11 = dictDF[(listSelectedClassifier[0], listSelectedClassifier[0])]
+    df_11 = dictDF[(listDefClassifier[0], listAdvClassifier[0])]
     arrTrainPercent = df_11.loc[:,['train_percent']].to_numpy()
     # print(df.loc[:,['train_percent']].to_numpy())
     print(arrTrainPercent)
     mean_afr_aucDs11 = df_11.loc[:,['mean_afr_aucDs']].to_numpy()
 
     mean_afr_aucDs_all = np.empty([mean_afr_aucDs11.shape[0], 0])
-    for nclfD in listSelectedClassifier:
-        for nclfA in listSelectedClassifier:
+    for nclfD in listDefClassifier:
+        for nclfA in listAdvClassifier:
             df = dictDF[(nclfD, nclfA)]
             #print(df)
             mean_afr_aucDs_all = np.hstack((mean_afr_aucDs_all, df.loc[:,['mean_afr_aucDs']].to_numpy()))
@@ -91,7 +91,7 @@ def Plot_RTrain_Results(strDirPath, listSelectedClassifier,
     # mean_afr_aucRs is mean of mean_afr_aucDs for each classifier
     # obtained using post-learning randomization data from RV.py
     dictDF_RV = {}
-    for nclfA in listSelectedClassifier:
+    for nclfA in listAdvClassifier:
         filename = strDirPath + \
                    '/A-' + str(nclfA) + \
                    '_Steps-' + str(nSteps) + '_Rep-' + str(nEPOCHS)
@@ -99,7 +99,7 @@ def Plot_RTrain_Results(strDirPath, listSelectedClassifier,
         dictDF_RV[nclfA] = pd.read_csv(filename + '.csv', delimiter=',')
 
     mean_afr_aucRs_all = np.empty([mean_afr_aucDs11.shape[0], 0])
-    for nclfA in listSelectedClassifier:
+    for nclfA in listAdvClassifier:
         df_RV = dictDF_RV[nclfA]
         mean_afr_aucRs_all = np.hstack((mean_afr_aucRs_all, df_RV.loc[1:mean_afr_aucDs11.shape[0],['mean_afr_aucRs']].to_numpy()))
 
@@ -134,7 +134,8 @@ def Plot_RTrain_Results(strDirPath, listSelectedClassifier,
     print("Max afr for post learning randomization: ", np.round(maxAFRpostLearn, 2))
 
     with open(strDirPath + '/Result.txt', 'w') as fp:
-        fp.writelines('Classifiers: ' + str(listSelectedClassifier) + '\n')
+        fp.writelines('Defender Classifiers: ' + str(listDefClassifier) + '\n')
+        fp.writelines('Adversary Classifiers: ' + str(listAdvClassifier) + '\n')
         fp.writelines('Repeats: ' + str(nEPOCHS) + '\n')
         fp.writelines('Steps: ' + str(nSteps) + '\n')
         fp.writelines("Max afr for mean of matrix: " + str(np.round(maxAFRmatrix, 2)) + '\n')
@@ -180,7 +181,8 @@ if __name__ == '__main__':
     strDirPath = os.path.join(os.getcwd(), 'local-data', cDATA + '_' + strOutDir)
     #os.makedirs(strDirPath)
 
-    listSelectedClassifier = [3, 4, 5]
+    listDefClassifier = [3, 4, 5]
+    listAdvClassifier = [3, 4, 5]
     # Run_RTrain(strDirPath, fTestSize, listSelectedClassifier,
     #            listData, listLabel, nEPOCHS, nSteps)
     # Run_RV(strDirPath, fTestSize, listSelectedClassifier,

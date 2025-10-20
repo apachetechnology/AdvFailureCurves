@@ -38,13 +38,15 @@ class CModels:
 
     def chooseClassifier(self, nclf):
         clfs = [KNeighborsClassifier(5),  # 0
-                DecisionTreeClassifier(max_depth=5),  # 1
-                RandomForestClassifier(),  # 2
-                RandomForestClassifier(
-                    max_depth=5, n_estimators=10, max_features=5),  # 3
-                MLPClassifier(alpha=1, max_iter=100),  # 4
-                AdaBoostClassifier(),  # 5
-                GaussianNB()]  # 6
+            DecisionTreeClassifier(max_depth=5),  # 1
+            RandomForestClassifier(),  # 2
+            RandomForestClassifier(max_depth=5, n_estimators=10, max_features=5),  # 3
+            MLPClassifier(alpha=1, max_iter=100),  # 4
+            AdaBoostClassifier(),  # 5
+            GaussianNB(), # 6
+            KNeighborsClassifier(n_neighbors=3, weights='distance', 
+                                 algorithm='kd_tree', p=2, metric='hamming'), # 7 
+            ]  
         return (clfs[nclf])
 
     # ----------------------------------------------------------------------
