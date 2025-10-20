@@ -9,8 +9,6 @@ from Core.models import CModels
 from Core.dataset import CDataset
 from Core.plots import CPlots
 
-from numba import jit, cuda
-
 # Run Rtrain using below classifier combination
     # Beth RandomForestClassifier(max_depth=5, n_estimators=10, max_features=5) #3
     # MLPClassifier(alpha=1, max_iter=100),  # 4
@@ -20,7 +18,6 @@ from numba import jit, cuda
     #3	33	34	35
     #4	43	44	45
     #5	53	54	55
-@jit(target_backend='cuda')
 def Run_RTrain(strDirPath, fTestSize, listDefClassifier, listAdvClassifier,
                listData, listLabel, nEPOCHS, nSteps, bBethOOS,
                bShuffle=False, aRS=None):
@@ -35,14 +32,16 @@ def Run_RTrain(strDirPath, fTestSize, listDefClassifier, listAdvClassifier,
             #break
         #break
 
-#@jit(target_backend='cuda')
 def Run_RV(strDirPath, fTestSize, listAdvClassifier,
            listData, listLabel, nEPOCHS, nSteps, bBethOOS):
     for nclfA in listAdvClassifier:
-        objM = CModels(strDirPath, fTestSize, 
-                       nclfA, -1, -1,
+        print('Adversary - A:', nclfA)
+        dtStart = datetime.now()
+        objM = CModels(strDirPath, fTestSize, nclfA, -1, -1,
                        bShuffle=False, aRS=None)
         objM.Run_RV(listData, listLabel, nEPOCHS, nSteps, bBethOOS)
+        cpu_time = datetime.now() - dtStart
+        print(f'Time elapsed:{cpu_time/60.0} minutes')
         #break
 
 ################################################################

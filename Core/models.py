@@ -21,6 +21,8 @@ from sklearn.model_selection import train_test_split
 from .dataset import CDataset
 from .plots import CPlots
 
+from numba import jit, cuda
+
 ######################################################################################
 # Class CModels
 class CModels:
@@ -482,6 +484,7 @@ class CModels:
 
         return (roc_aucR, roc_aucA, afr_aucR)
 
+    @jit(target_backend='cuda')
     def Run_RV(self, listData, listLabel, nEPOCHS, nSteps, bBethOOS):
         self.mlistData = listData
         self.mlistLabel = listLabel
@@ -692,6 +695,7 @@ class CModels:
             print("std_afr_aucDs = ", std_afr_aucDs)
         sys.stdout = original_stdout
 
+    @jit(target_backend='cuda')
     def Run_RTrainSize(self, listData, listLabel, 
                        nEPOCHS, nSteps, bBethOOS):
         self.mlistData = listData
