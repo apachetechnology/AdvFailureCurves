@@ -13,6 +13,9 @@
 ## Generate Adversarial Data
     Run nbAdvExData.ipynb 
 
+## Models performance
+    Run nbTestClassification.ipynb
+
 # Requirements
 ## CTGAN
 py -3.9 -m pip install ctgan
