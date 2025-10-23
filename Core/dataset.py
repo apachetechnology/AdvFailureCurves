@@ -107,6 +107,58 @@ class CDataset:
         listData = dfData.to_numpy()
         listLabel = dfLabel.to_numpy()
         return listData, listLabel
+    
+    def PrepareBeth60KDataset(self, strFileName, strOutFile, nTotalSamples):
+        try:
+            df = pd.read_csv(strFileName, delimiter=',')
+            dfData = df.loc[:,['processId','parentProcessId', 'mountNamespace',
+                                'eventId', 'argsNum', 'returnValue']]
+
+            dfLabel = df.loc[:,['sus']]
+            print(dfLabel.groupby('sus').size())
+
+            # Calculate samples per class (half of nTotalSamples)
+            samples_per_class = nTotalSamples // 2
+            
+            # Separate data by labels
+            df_label_0 = df[df['sus'] == 0]
+            df_label_1 = df[df['sus'] == 1]
+            
+            # Check if enough samples are available
+            if len(df_label_0) < samples_per_class:
+                print(f"Error: Not enough samples for label 0 ({len(df_label_0)} available, {samples_per_class} needed)")
+                return None, None
+            if len(df_label_1) < samples_per_class:
+                print(f"Error: Not enough samples for label 1 ({len(df_label_1)} available, {samples_per_class} needed)")
+                return None, None
+            
+            # Randomly sample from each class
+            df_label_0_sampled = df_label_0.sample(n=samples_per_class, random_state=42)
+            df_label_1_sampled = df_label_1.sample(n=samples_per_class, random_state=42)
+            
+            # Combine sampled data
+            df_balanced = pd.concat([df_label_0_sampled, df_label_1_sampled])
+            
+            # Shuffle the combined dataset
+            df_balanced = df_balanced.sample(frac=1, random_state=42).reset_index(drop=True)
+            
+            # Select data and labels from balanced dataset
+            dfData_balanced = df_balanced.loc[:, ['processId', 'parentProcessId', 'mountNamespace',
+                                                'eventId', 'argsNum', 'returnValue']]
+            dfLabel_balanced = df_balanced.loc[:, ['sus']]
+            
+            # Print new label distribution
+            print("\nBalanced label distribution:")
+            print(dfLabel_balanced.groupby('sus').size())
+
+            dfLabel_balanced.to_csv(strOutFile, index=False)
+
+        except FileNotFoundError:
+            print(f"Error: File {strFileName} not found")
+        except KeyError as e:
+            print(f"Error: Column {e} not found in CSV file")
+        except Exception as e:
+            print(f"Error: {str(e)}")
 
     # Get Kyoto Dataset
     def PrepareSelectedKyotoDS(self, strFileName, strOutName):
