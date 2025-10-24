@@ -26,7 +26,7 @@ py -3.9 -m pip install scikit-learn adversarial-robustness-toolbox<br>
 py -3.9 -m pip show scikit-learn<br>
 py -3.9 -m pip install --upgrade adversarial-robustness-toolbox
 
-## CUDA
+## Required package
 py -3.9 -m pip install numba<br>
 py -3.9 -m pip install rtd
 
