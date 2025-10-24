@@ -28,5 +28,6 @@ py -3.9 -m pip install --upgrade adversarial-robustness-toolbox
 
 ## CUDA
 py -3.9 -m pip install numba
+py -3.9 -m pip install rtd
 
 
