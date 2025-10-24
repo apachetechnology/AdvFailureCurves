@@ -178,7 +178,7 @@ class CAnalyzeResults:
 
     # This function is in use
     def PlotResults_Combined(self, strTitle, strOutDir, strToken):
-        fig, axs = plt.subplots(2, figsize=(6, 7)) # figsize=(6, 3), dpi=300
+        fig, axs = plt.subplots(2, figsize=(6, 7.5)) # figsize=(6, 3), dpi=300
         #fig.suptitle(strTitle)
         plt.subplots_adjust(hspace=.55)
 
@@ -288,7 +288,7 @@ class CAnalyzeResults:
 
     # 14th May 2024
     def PlotResults_RF_MM(self, strOutDir, strToken):
-        fig, axs = plt.subplots(2, figsize=(6, 7)) # figsize=(6, 3), dpi=300
+        fig, axs = plt.subplots(2, figsize=(6, 7.5)) # figsize=(6, 3), dpi=300
         #fig.suptitle(strTitle)
         plt.subplots_adjust(hspace=.55)
 
@@ -332,7 +332,7 @@ class CAnalyzeResults:
         plt.clf()
 
     def PlotResults_PostLearn(self, strOutDir, strToken):
-        fig, axs = plt.subplots(2, figsize=(6, 7)) # figsize=(6, 3), dpi=300
+        fig, axs = plt.subplots(2, figsize=(6, 7.5)) # figsize=(6, 3), dpi=300
         #fig.suptitle(strTitle)
         plt.subplots_adjust(hspace=.55)
 
