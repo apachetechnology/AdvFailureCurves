@@ -1,5 +1,7 @@
 # Adversarial Failure Curves
 
+## Researcher
+
 | Francesco Bergadano | Sandeep Gupta | Bruno Crispo |
 |----------|----------|----------|
 | Department of Computer Science,| Centre for Secure Information Technologies (CSIT), | Department of Information Engineering and Computer Science,|
