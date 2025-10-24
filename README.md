@@ -1,4 +1,10 @@
 # Adversarial Failure Curves
+
+| Francesco Bergadano | Sandeep Gupta | Bruno Crispo |
+|----------|----------|----------|
+| Department of Computer Science,| Centre for Secure Information Technologies (CSIT), | Department of Information Engineering and Computer Science,|
+| University of Turin, Italy| Queen's University Belfast, UK | University of Trento, Italy |
+    
     https://anonymous.4open.science/r/AdvFailureCurves-EAF8
 
 ## Main Experiments
