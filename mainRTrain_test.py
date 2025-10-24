@@ -8,6 +8,9 @@ from datetime import datetime
 from Core.models import CModels
 from Core.dataset import CDataset
 from Core.plots import CPlots
+from numba import jit
+
+import gc
 
 # Run Rtrain using below classifier combination
     # Beth RandomForestClassifier(max_depth=5, n_estimators=10, max_features=5) #3
@@ -31,20 +34,23 @@ def Run_RTrain(strDirPath, fTestSize, listDefClassifier, listAdvClassifier,
                            bShuffle, aRS)
             objM.Run_RTrainSize(listData, listLabel, nEPOCHS, nSteps, bBethOOS)
             cpu_time = datetime.now() - dtStart
-            print(f'Time elapsed:{cpu_time/60.0} minutes')
+            print(f'Time elapsed:{cpu_time/60.0}')
             #break
         #break
 
+#@jit(nopython=True, cache=True)
 def Run_RV(strDirPath, fTestSize, listAdvClassifier,
            listData, listLabel, nEPOCHS, nSteps, bBethOOS):
     for nclfA in listAdvClassifier:
-        print('Adversary - A:', nclfA)
         dtStart = datetime.now()
-        objM = CModels(strDirPath, fTestSize, nclfA, -1, -1,
+        print('Adversary - A:', nclfA, 'Start time:', dtStart)
+        objAM = CModels(strDirPath, fTestSize, nclfA, -1, -1,
                        bShuffle=False, aRS=None)
-        objM.Run_RV(listData, listLabel, nEPOCHS, nSteps, bBethOOS)
+        objAM.Run_RV(listData, listLabel, nEPOCHS, nSteps, bBethOOS)
         cpu_time = datetime.now() - dtStart
-        print(f'Time elapsed:{cpu_time/60.0} minutes')
+        print(f'Time elapsed:{cpu_time/60.0}')
+        objAM = None
+        gc.collect()
         #break
 
 ################################################################

@@ -485,6 +485,7 @@ class CModels:
         return (roc_aucR, roc_aucA, afr_aucR)
 
     #@jit(target_backend='cuda')
+    #@jit(nopython=True, cache=True)
     def Run_RV(self, listData, listLabel, nEPOCHS, nSteps, bBethOOS):
         self.mlistData = listData
         self.mlistLabel = listLabel
