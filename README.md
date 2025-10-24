@@ -7,6 +7,8 @@
     
     https://anonymous.4open.science/r/AdvFailureCurves-EAF8
 
+# Usage details 
+
 ## Main Experiments
     Run nbMainExperiments.ipynb
 
@@ -21,6 +23,19 @@
 
 ## Models performance
     Run nbTestClassification.ipynb
+
+# Citation
+
+Please cite our papers if you use this workspace
+
+|@inproceedings{bergadano2025evasion,<br>
+  title={Evasion resistance via diversity prediction},<br>
+  author={Bergadano, Francesco and Gupta, Sandeep and Crispo, Bruno},<br>
+  booktitle={1st Iberian Conference on Cybersecurity and Artificial Intelligence},<br>
+  pages={5--8},<br>
+  year={2025},<br>
+  organization={Universidade da Beira Interior}<br>
+}|
 
 # Requirements
 ## CTGAN
