@@ -18,16 +18,16 @@
 
 # Requirements
 ## CTGAN
-py -3.9 -m pip install ctgan
+py -3.9 -m pip install ctgan<br>
 py -3.9 -m pip show ctgan
 
 ## ART
-py -3.9 -m pip install scikit-learn adversarial-robustness-toolbox
-py -3.9 -m pip show scikit-learn
+py -3.9 -m pip install scikit-learn adversarial-robustness-toolbox<br>
+py -3.9 -m pip show scikit-learn<br>
 py -3.9 -m pip install --upgrade adversarial-robustness-toolbox
 
 ## CUDA
-py -3.9 -m pip install numba
+py -3.9 -m pip install numba<br>
 py -3.9 -m pip install rtd
 
 
