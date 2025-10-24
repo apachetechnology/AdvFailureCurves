@@ -11,6 +11,11 @@
 
 # Usage details 
 
+## Data
+    Download data.tar and keep at the outside the main folder. <br>
+    All the path are relative ../DATA.
+    Please check the datapath before running the experiments
+
 ## Main Experiments
     Run nbMainExperiments.ipynb
 
