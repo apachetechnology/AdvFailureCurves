@@ -26,7 +26,7 @@
     Run nbGenSynData.ipynb 
 
 ## Generate Adversarial Data
-    Run nbAdvExData.ipynb 
+    Run ./AdversarialTraining/nbAdvExData.ipynb 
 
 ## Models performance
     Run nbTestClassification.ipynb
