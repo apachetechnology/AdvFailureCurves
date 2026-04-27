@@ -35,6 +35,18 @@
 
 Please cite our papers if you use this research or the code
 
+[Techniques and metrics for evasion attack mitigation](https://www.sciencedirect.com/science/article/pii/S0167404825004912)
+
+## Techniques and metrics for evasion attack mitigation
+@article{bergadano2025techniques,<br>
+  title={Techniques and metrics for evasion attack mitigation},<br>
+  author={Bergadano, Francesco and Gupta, Sandeep and Crispo, Bruno},<br>
+  journal={Computers \& Security},<br>
+  pages={104802},<br>
+  year={2025},<br>
+  publisher={Elsevier}<br>
+}
+
 [Keyed randomization with adversarial failure curves and moving target defense](https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=11140525)
 
 ## Keyed randomization with adversarial failure curves and moving target defense
