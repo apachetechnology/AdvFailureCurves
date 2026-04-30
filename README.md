@@ -1,6 +1,6 @@
 # Adversarial Failure Curves
 
-## Researcher
+## Authors
 
 | Francesco Bergadano | Sandeep Gupta | Bruno Crispo |
 |----------|----------|----------|
